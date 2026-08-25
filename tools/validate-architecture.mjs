@@ -12,6 +12,12 @@ for (const file of [
   'src/components/ScenePane.tsx',
   'src/components/ShowPane.tsx',
   'src/components/ProductLibraryDialog.tsx',
+  'src/components/BroadcastGraphicsEditor.tsx',
+  'src/components/BroadcastGraphicsOverlay.tsx',
+  'src/graphics/types.ts',
+  'src/graphics/color-key-catalog.ts',
+  'src/graphics/overlay-profiles.ts',
+  'src/graphics/resolve-overlay.ts',
   'src/map/CoreGlobe.tsx',
   'src/map/home-camera.ts',
   'src/output/OutputApp.tsx',
@@ -38,6 +44,9 @@ for (const token of [
   '<ProductLibraryDialog',
   'useScenePreloading(state.scenes, dispatch)',
   '<BroadcastStage',
+  '<BroadcastGraphicsEditor',
+  'graphics={state.graphics}',
+  "selectedScene.overlayProfileId === 'none'",
   'publishOutput',
 ]) {
   if (!app.includes(token)) throw new Error(`Application composition missing: ${token}`);
@@ -55,6 +64,12 @@ if (!library.includes("availability: 'planned'") || !library.includes("availabil
 if (!library.includes("id: 'clear-globe'")) {
   throw new Error('Clear Globe core scene definition missing.');
 }
+if (!library.includes("overlayProfileId: 'none'") || !library.includes("'text-forecast'")) {
+  throw new Error('Product definitions must declare overlay profiles, including suppressed Text Forecast.');
+}
+if (library.includes('header:') || library.includes('legend:')) {
+  throw new Error('Weather product definitions must not own broadcast title-bar or color-key graphics.');
+}
 
 const preloadHook = await read('src/hooks/useScenePreloading.ts');
 for (const token of [
@@ -69,6 +84,91 @@ for (const token of [
 const preloadRegistry = await read('src/data/preload-registry.ts');
 if (!preloadRegistry.includes('sharedDataCache.getOrLoad')) {
   throw new Error('Scene preloaders must route through the shared provider cache.');
+}
+
+const workspaceTypes = await read('src/types/workspace.ts');
+for (const token of [
+  'overlayProfileId: string',
+  'graphics: BroadcastGraphicsState',
+  "'graphics/profile'",
+  "'graphics/reset-all'",
+]) {
+  if (!workspaceTypes.includes(token)) throw new Error(`Broadcast graphics workspace contract missing: ${token}`);
+}
+for (const forbidden of ['HeaderDefinition', 'LegendDefinition', 'header:', 'legend:']) {
+  if (workspaceTypes.includes(forbidden)) {
+    throw new Error(`Scene instances must not own broadcast graphics: ${forbidden}`);
+  }
+}
+
+const overlayProfiles = await read('src/graphics/overlay-profiles.ts');
+for (const token of [
+  "suppressed('text-forecast'",
+  "standard('radar-ewx'",
+  "standard('observations-temperature'",
+  "standard('model-hrrr-temperature'",
+]) {
+  if (!overlayProfiles.includes(token)) throw new Error(`Overlay profile registry missing: ${token}`);
+}
+
+const colorKeys = await read('src/graphics/color-key-catalog.ts');
+for (const key of [
+  'reflectivity',
+  'temperature',
+  'dewpoint',
+  'humidity',
+  'rainfall',
+  'spc-categorical',
+  'infrared',
+  'aqi',
+  'smoke',
+  'probability',
+  'storm-surge',
+  'cpc-temperature',
+  'cpc-precipitation',
+  'tropical-formation',
+  'alerts',
+]) {
+  if (!colorKeys.includes(`id: '${key}'`)) throw new Error(`Broadcast color-key catalog missing: ${key}`);
+}
+
+const resolver = await read('src/graphics/resolve-overlay.ts');
+for (const token of [
+  "profile.policy === 'suppressed'",
+  'state.overrides[profileId]',
+  'override.colorKeyId !== undefined',
+  'colorKeyDefinition(effectiveKeyId)',
+]) {
+  if (!resolver.includes(token)) throw new Error(`Automatic overlay resolver contract missing: ${token}`);
+}
+
+const broadcastStage = await read('src/components/BroadcastStage.tsx');
+if (
+  !broadcastStage.includes('<BroadcastGraphicsOverlay')
+  || !broadcastStage.includes("sceneOverlayProfileId !== 'none'")
+  || broadcastStage.includes('BroadcastHeader')
+) {
+  throw new Error('Broadcast stage must use the shared Broadcast Graphics resolver with scene-first preview fallback.');
+}
+
+const graphicsEditor = await read('src/components/BroadcastGraphicsEditor.tsx');
+for (const token of [
+  'Auto — profile default',
+  'COLOR_KEY_CATALOG.map',
+  'Reset This Profile',
+  'Shared Layout',
+  'Preview this profile on map / Present / PNG',
+]) {
+  if (!graphicsEditor.includes(token)) throw new Error(`Independent Broadcast Graphics editor missing: ${token}`);
+}
+
+const outputSync = await read('src/output/output-sync.ts');
+if (
+  !outputSync.includes('graphics: BroadcastGraphicsState')
+  || !outputSync.includes('previewOverlayProfileId: string | null')
+  || !outputSync.includes('rbr-wx-output-payload-v2')
+) {
+  throw new Error('Present/output payload must carry the same Broadcast Graphics state and graphics preview.');
 }
 
 const map = await read('src/map/CoreGlobe.tsx');
@@ -124,4 +224,4 @@ for (const token of [
   if (!reducer.includes(token)) throw new Error(`Fresh-launch workspace contract missing: ${token}`);
 }
 
-console.log('RBR WX architecture validation passed: fresh Windows-session startup, Texas startup/reset, empty startup workspace, one left scene pane, one mirrored show timeline, library-driven scene creation, immediate preload requests, shared cache, shared globe, export/output hooks.');
+console.log('RBR WX architecture validation passed: 0.2.0 independent Broadcast Graphics registry/editor/color keys, automatic scene overlay resolution, shared operator/Present/PNG rendering, fresh Windows-session startup, Texas map foundation, one scene queue, one Show timeline, immediate preload requests, shared cache.');

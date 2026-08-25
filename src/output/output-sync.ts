@@ -1,13 +1,16 @@
+import type { BroadcastGraphicsState } from '../graphics/types';
 import type { CoreViewState, SceneInstance } from '../types/workspace';
 
 export interface OutputPayload {
   scene: SceneInstance | null;
   coreView: CoreViewState;
+  graphics: BroadcastGraphicsState;
+  previewOverlayProfileId: string | null;
   publishedAt: string;
 }
 
-const STORAGE_KEY = 'rbr-wx-output-payload-v1';
-const CHANNEL = 'rbr-wx-output-v1';
+const STORAGE_KEY = 'rbr-wx-output-payload-v2';
+const CHANNEL = 'rbr-wx-output-v2';
 
 export function publishOutput(payload: OutputPayload): void {
   const serialized = JSON.stringify(payload);

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useReducer, useRef } from 'react';
 import { Window } from '@tauri-apps/api/window';
 import { BroadcastStage } from './components/BroadcastStage';
+import { BroadcastGraphicsEditor } from './components/BroadcastGraphicsEditor';
 import { HiddenMenu } from './components/HiddenMenu';
 import { ProductLibraryDialog } from './components/ProductLibraryDialog';
 import { ScenePane } from './components/ScenePane';
@@ -23,21 +24,30 @@ export function App() {
 
   useScenePreloading(state.scenes, dispatch);
 
+  const activeBasemap = selectedScene?.basemap ?? state.coreView.basemap;
+  const activeContext = selectedScene?.context ?? state.coreView.context;
+  const previewOverlayProfileId = (!selectedScene || selectedScene.overlayProfileId === 'none')
+    && state.graphicsOpen
+    && state.graphics.previewOnStage
+    ? state.graphics.previewProfileId
+    : null;
+
   useEffect(() => {
     publishOutput({
       scene: selectedScene ? structuredClone(selectedScene) : null,
       coreView: structuredClone(state.coreView),
+      graphics: structuredClone(state.graphics),
+      previewOverlayProfileId,
       publishedAt: new Date().toISOString(),
     });
-  }, [selectedScene, state.coreView]);
-
-  const activeBasemap = selectedScene?.basemap ?? state.coreView.basemap;
-  const activeContext = selectedScene?.context ?? state.coreView.context;
+  }, [selectedScene, state.coreView, state.graphics, previewOverlayProfileId]);
 
   async function present(): Promise<void> {
     publishOutput({
       scene: selectedScene ? structuredClone(selectedScene) : null,
       coreView: structuredClone(state.coreView),
+      graphics: structuredClone(state.graphics),
+      previewOverlayProfileId,
       publishedAt: new Date().toISOString(),
     });
     try {
@@ -60,6 +70,7 @@ export function App() {
       <TopBar
         sceneName={selectedScene?.name ?? 'Core Globe'}
         onLibrary={() => dispatch({ type: 'ui/library', open: true })}
+        onGraphics={() => dispatch({ type: 'ui/graphics', open: !state.graphicsOpen })}
         onPresent={() => void present()}
         onExport={() => void exportPng()}
         onMenu={() => dispatch({ type: 'ui/menu', open: !state.hiddenMenuOpen })}
@@ -79,6 +90,8 @@ export function App() {
           ref={stageRef}
           scene={selectedScene}
           coreView={state.coreView}
+          graphics={state.graphics}
+          previewOverlayProfileId={previewOverlayProfileId}
           interactive
           onSceneCameraChange={(sceneId, camera) => dispatch({ type: 'scene/camera', sceneId, camera })}
         />
@@ -90,6 +103,17 @@ export function App() {
         collapsed={state.showCollapsed}
         onToggleCollapsed={() => dispatch({ type: 'ui/show-collapsed', value: !state.showCollapsed })}
         onSelect={(sceneId) => dispatch({ type: 'scene/select', sceneId })}
+      />
+
+      <BroadcastGraphicsEditor
+        open={state.graphicsOpen}
+        graphics={state.graphics}
+        activeProfileId={selectedScene?.overlayProfileId ?? null}
+        onClose={() => dispatch({ type: 'ui/graphics', open: false })}
+        onSettings={(patch) => dispatch({ type: 'graphics/settings', patch })}
+        onProfile={(profileId, patch) => dispatch({ type: 'graphics/profile', profileId, patch })}
+        onResetProfile={(profileId) => dispatch({ type: 'graphics/reset-profile', profileId })}
+        onResetAll={() => dispatch({ type: 'graphics/reset-all' })}
       />
 
       <ProductLibraryDialog

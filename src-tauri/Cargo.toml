@@ -1,6 +1,6 @@
 [package]
 name = "rbr-wx"
-version = "0.1.0"
+version = "0.2.0"
 description = "RBR WX local broadcast weather workstation"
 authors = ["RBR WX"]
 edition = "2021"

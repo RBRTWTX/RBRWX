@@ -1,0 +1,202 @@
+import type { ColorKeyDefinition, ColorKeyId } from './types';
+
+export const COLOR_KEY_CATALOG: readonly ColorKeyDefinition[] = [
+  {
+    id: 'reflectivity',
+    name: 'Radar Reflectivity',
+    units: 'dBZ',
+    stops: [
+      { label: '5', color: '#00c853' },
+      { label: '20', color: '#00a844' },
+      { label: '30', color: '#f4e61e' },
+      { label: '40', color: '#ff9f1c' },
+      { label: '50', color: '#ff2b2b' },
+      { label: '60', color: '#b100b8' },
+      { label: '70+', color: '#f7f7f7' },
+    ],
+  },
+  {
+    id: 'temperature',
+    name: 'Temperature',
+    units: '°F',
+    stops: [
+      { label: '-20', color: '#7f3fbf' },
+      { label: '0', color: '#3857c9' },
+      { label: '20', color: '#2f8ee5' },
+      { label: '32', color: '#33c6d4' },
+      { label: '50', color: '#45b84a' },
+      { label: '70', color: '#e6d43a' },
+      { label: '90', color: '#f28c28' },
+      { label: '105+', color: '#cc3434' },
+    ],
+  },
+  {
+    id: 'dewpoint',
+    name: 'Dew Point',
+    units: '°F',
+    stops: [
+      { label: '<30', color: '#9b6b43' },
+      { label: '40', color: '#b6a84a' },
+      { label: '50', color: '#6fbf4b' },
+      { label: '60', color: '#32a85d' },
+      { label: '65', color: '#1f9d8a' },
+      { label: '70', color: '#197bbd' },
+      { label: '75+', color: '#6b4cc2' },
+    ],
+  },
+  {
+    id: 'humidity',
+    name: 'Relative Humidity',
+    units: '%',
+    stops: [
+      { label: '10', color: '#8f5a3c' },
+      { label: '25', color: '#c08a47' },
+      { label: '40', color: '#d7be55' },
+      { label: '55', color: '#7fbd61' },
+      { label: '70', color: '#49a77c' },
+      { label: '85', color: '#3c8fb6' },
+      { label: '100', color: '#6554b3' },
+    ],
+  },
+  {
+    id: 'rainfall',
+    name: 'Rainfall',
+    units: 'in',
+    stops: [
+      { label: '0.10', color: '#85d96b' },
+      { label: '0.25', color: '#42b95e' },
+      { label: '0.50', color: '#1a9c7e' },
+      { label: '1', color: '#1f80c4' },
+      { label: '2', color: '#5555c8' },
+      { label: '3', color: '#8a42b5' },
+      { label: '5+', color: '#cf3d92' },
+    ],
+  },
+  {
+    id: 'spc-categorical',
+    name: 'SPC Categorical Risk',
+    units: null,
+    stops: [
+      { label: 'TSTM', color: '#c1e7b3' },
+      { label: 'MRGL', color: '#66a85a' },
+      { label: 'SLGT', color: '#f0dc4b' },
+      { label: 'ENH', color: '#e89b35' },
+      { label: 'MDT', color: '#d83f3f' },
+      { label: 'HIGH', color: '#d145b8' },
+    ],
+  },
+  {
+    id: 'infrared',
+    name: 'Infrared Cloud Tops',
+    units: '°C',
+    stops: [
+      { label: '-20', color: '#7d7d7d' },
+      { label: '-30', color: '#d9d9d9' },
+      { label: '-40', color: '#47b8d7' },
+      { label: '-50', color: '#3e66c4' },
+      { label: '-60', color: '#8544b6' },
+      { label: '-70', color: '#d13d86' },
+      { label: '-80', color: '#f5da3a' },
+    ],
+  },
+  {
+    id: 'aqi',
+    name: 'Air Quality Index',
+    units: 'AQI',
+    stops: [
+      { label: 'Good', color: '#00a651' },
+      { label: 'Moderate', color: '#f5d328' },
+      { label: 'USG', color: '#f28c28' },
+      { label: 'Unhealthy', color: '#d83b3b' },
+      { label: 'Very Unhealthy', color: '#8f3f97' },
+      { label: 'Hazardous', color: '#7e2f3e' },
+    ],
+  },
+  {
+    id: 'smoke',
+    name: 'Surface Smoke',
+    units: 'µg/m³',
+    stops: [
+      { label: '1', color: '#d9d9d9' },
+      { label: '5', color: '#bcbcbc' },
+      { label: '10', color: '#969696' },
+      { label: '20', color: '#707070' },
+      { label: '50', color: '#4e4e4e' },
+      { label: '100+', color: '#2d2d2d' },
+    ],
+  },
+  {
+    id: 'probability',
+    name: 'Probability',
+    units: '%',
+    stops: [
+      { label: '10', color: '#5abf73' },
+      { label: '20', color: '#43a98b' },
+      { label: '30', color: '#3690ad' },
+      { label: '40', color: '#3f73c0' },
+      { label: '50', color: '#6958bd' },
+      { label: '70', color: '#a545a5' },
+      { label: '90+', color: '#d43c73' },
+    ],
+  },
+  {
+    id: 'cpc-temperature',
+    name: 'CPC Temperature Outlook',
+    units: null,
+    stops: [
+      { label: 'Below', color: '#4a78b8' },
+      { label: 'Near', color: '#d7d2b8' },
+      { label: 'Above', color: '#c85a52' },
+    ],
+  },
+  {
+    id: 'cpc-precipitation',
+    name: 'CPC Precipitation Outlook',
+    units: null,
+    stops: [
+      { label: 'Below', color: '#b98250' },
+      { label: 'Near', color: '#d7d2b8' },
+      { label: 'Above', color: '#4c9d61' },
+    ],
+  },
+  {
+    id: 'tropical-formation',
+    name: 'Tropical Formation Chance',
+    units: null,
+    stops: [
+      { label: 'Low', color: '#f2d83f' },
+      { label: 'Medium', color: '#ef8a2f' },
+      { label: 'High', color: '#d53f3f' },
+    ],
+  },
+  {
+    id: 'alerts',
+    name: 'Core Alert Types',
+    units: null,
+    stops: [
+      { label: 'TOR W', color: '#d52b2b' },
+      { label: 'SVR W', color: '#e58b2d' },
+      { label: 'FFW', color: '#2f9d55' },
+      { label: 'TOR A', color: '#e5c82d' },
+      { label: 'SVR A', color: '#d68ad5' },
+    ],
+  },
+  {
+    id: 'storm-surge',
+    name: 'Storm Surge',
+    units: 'ft',
+    stops: [
+      { label: '1', color: '#54c3a3' },
+      { label: '3', color: '#7ec857' },
+      { label: '6', color: '#e0cf44' },
+      { label: '9', color: '#e89b35' },
+      { label: '12', color: '#db513e' },
+      { label: '15+', color: '#9b3d8f' },
+    ],
+  },
+] as const;
+
+export function colorKeyDefinition(id: ColorKeyId | null): ColorKeyDefinition | null {
+  if (!id) return null;
+  return COLOR_KEY_CATALOG.find((key) => key.id === id) ?? null;
+}

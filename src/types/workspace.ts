@@ -1,3 +1,9 @@
+import type {
+  BroadcastGraphicsProfileOverride,
+  BroadcastGraphicsState,
+  ColorKeyPosition,
+} from '../graphics/types';
+
 export type BasemapId = 'standard' | 'dark' | 'satellite';
 export type SceneDataState = 'queued' | 'loading' | 'ready' | 'updating' | 'degraded' | 'error';
 export type ProductAvailability = 'available' | 'planned';
@@ -15,17 +21,6 @@ export interface MapContextState {
   boundaries: boolean;
 }
 
-export interface HeaderDefinition {
-  title: string;
-  subtitle: string;
-  validLabel: string;
-}
-
-export interface LegendDefinition {
-  kind: 'none' | 'reflectivity' | 'temperature' | 'dewpoint' | 'spc' | 'rainfall' | 'infrared' | 'custom';
-  label?: string;
-}
-
 export interface ProductDefinition {
   id: string;
   name: string;
@@ -37,8 +32,7 @@ export interface ProductDefinition {
   defaultBasemap: BasemapId;
   defaultCamera: CameraState;
   defaultContext: MapContextState;
-  header: HeaderDefinition | null;
-  legend: LegendDefinition;
+  overlayProfileId: string;
 }
 
 export interface SceneInstance {
@@ -56,8 +50,7 @@ export interface SceneInstance {
   basemap: BasemapId;
   camera: CameraState;
   context: MapContextState;
-  header: HeaderDefinition | null;
-  legend: LegendDefinition;
+  overlayProfileId: string;
 }
 
 export interface CoreViewState {
@@ -72,8 +65,22 @@ export interface WorkspaceState {
   showCollapsed: boolean;
   libraryOpen: boolean;
   hiddenMenuOpen: boolean;
+  graphicsOpen: boolean;
   coreView: CoreViewState;
+  graphics: BroadcastGraphicsState;
 }
+
+export type BroadcastGraphicsSettingsPatch = Partial<{
+  enabled: boolean;
+  titleBarTop: number;
+  titleBarInset: number;
+  titleBarOpacity: number;
+  titleScale: number;
+  colorKeyPosition: ColorKeyPosition;
+  colorKeyScale: number;
+  previewProfileId: string;
+  previewOnStage: boolean;
+}>;
 
 export type WorkspaceAction =
   | { type: 'scene/add'; definition: ProductDefinition }
@@ -87,7 +94,12 @@ export type WorkspaceAction =
   | { type: 'core/basemap'; basemap: BasemapId }
   | { type: 'core/context'; key: keyof MapContextState; value: boolean }
   | { type: 'map/reset-home' }
+  | { type: 'graphics/settings'; patch: BroadcastGraphicsSettingsPatch }
+  | { type: 'graphics/profile'; profileId: string; patch: Partial<BroadcastGraphicsProfileOverride> }
+  | { type: 'graphics/reset-profile'; profileId: string }
+  | { type: 'graphics/reset-all' }
   | { type: 'ui/library'; open: boolean }
   | { type: 'ui/menu'; open: boolean }
+  | { type: 'ui/graphics'; open: boolean }
   | { type: 'ui/show-collapsed'; value: boolean }
   | { type: 'workspace/reset' };

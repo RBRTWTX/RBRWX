@@ -4,6 +4,7 @@ import type {
   WorkspaceAction,
   WorkspaceState,
 } from '../types/workspace';
+import { createDefaultBroadcastGraphicsState } from '../graphics/resolve-overlay';
 import { texasHomeCamera } from '../map/home-camera';
 
 export const EMPTY_WORKSPACE: WorkspaceState = {
@@ -12,11 +13,13 @@ export const EMPTY_WORKSPACE: WorkspaceState = {
   showCollapsed: false,
   libraryOpen: false,
   hiddenMenuOpen: false,
+  graphicsOpen: false,
   coreView: {
     basemap: 'standard',
     camera: texasHomeCamera(),
     context: { cities: true, roads: true, boundaries: true },
   },
+  graphics: createDefaultBroadcastGraphicsState(),
 };
 
 function sceneFromDefinition(definition: ProductDefinition): SceneInstance {
@@ -36,8 +39,7 @@ function sceneFromDefinition(definition: ProductDefinition): SceneInstance {
     basemap: definition.defaultBasemap,
     camera: structuredClone(definition.defaultCamera),
     context: structuredClone(definition.defaultContext),
-    header: definition.header ? structuredClone(definition.header) : null,
-    legend: structuredClone(definition.legend),
+    overlayProfileId: definition.overlayProfileId,
   };
 }
 
@@ -122,10 +124,42 @@ export function workspaceReducer(state: WorkspaceState, action: WorkspaceAction)
         ...state,
         coreView: { ...state.coreView, camera: texasHomeCamera() },
       };
+    case 'graphics/settings':
+      return { ...state, graphics: { ...state.graphics, ...action.patch } };
+    case 'graphics/profile': {
+      const current = state.graphics.overrides[action.profileId] ?? {};
+      return {
+        ...state,
+        graphics: {
+          ...state.graphics,
+          overrides: {
+            ...state.graphics.overrides,
+            [action.profileId]: { ...current, ...action.patch },
+          },
+        },
+      };
+    }
+    case 'graphics/reset-profile': {
+      const overrides = { ...state.graphics.overrides };
+      delete overrides[action.profileId];
+      return { ...state, graphics: { ...state.graphics, overrides } };
+    }
+    case 'graphics/reset-all':
+      return { ...state, graphics: createDefaultBroadcastGraphicsState() };
     case 'ui/library':
       return { ...state, libraryOpen: action.open };
     case 'ui/menu':
-      return { ...state, hiddenMenuOpen: action.open };
+      return {
+        ...state,
+        hiddenMenuOpen: action.open,
+        graphicsOpen: action.open ? false : state.graphicsOpen,
+      };
+    case 'ui/graphics':
+      return {
+        ...state,
+        graphicsOpen: action.open,
+        hiddenMenuOpen: action.open ? false : state.hiddenMenuOpen,
+      };
     case 'ui/show-collapsed':
       return { ...state, showCollapsed: action.value };
     case 'workspace/reset':
