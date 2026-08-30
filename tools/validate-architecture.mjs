@@ -156,6 +156,9 @@ for (const token of [
   'tickerVisible: false',
   "lowerThirdText: ''",
   "tickerText: ''",
+  "'title-bar': { x: 1, y: 2.5, width: 98, height: 108 }",
+  "'lower-third': { x: 4, y: 78, width: 92, height: 64 }",
+  "'live-ticker': { x: 4, y: 87, width: 92, height: 38 }",
   "sceneOverlayProfileId === 'text-forecast'",
   'state.autoAssignment',
   'state.overrides[profileId]',
@@ -175,16 +178,32 @@ for (const token of [
   if (!editableText.includes(token)) throw new Error(`Direct-on-graphic text editing contract missing: ${token}`);
 }
 
+const frame = await read('src/components/BroadcastGraphicFrame.tsx');
+for (const token of [
+  'BroadcastGraphicGeometry',
+  'beginDrag',
+  'beginResize',
+  'broadcast-graphic-resize-handle',
+  'onGeometry(graphicId',
+  'data-broadcast-graphic-id',
+]) {
+  if (!frame.includes(token)) throw new Error(`Direct-manipulation Broadcast Graphic frame missing: ${token}`);
+}
+
 const overlay = await read('src/components/BroadcastGraphicsOverlay.tsx');
 for (const token of [
   '<BroadcastEditableText',
+  '<BroadcastGraphicFrame',
+  'graphicId="title-bar"',
+  'graphicId="lower-third"',
+  'graphicId="live-ticker"',
   'broadcast-title-text',
   'broadcast-valid-label',
   'broadcast-subtitle-text',
   'broadcast-title-color-key',
   'broadcast-lower-third-text',
   'broadcast-ticker-text',
-  'onPointerDown={beginLowerThirdDrag}',
+  'changeGeometry',
 ]) {
   if (!overlay.includes(token)) throw new Error(`Broadcast Graphics renderer missing: ${token}`);
 }
@@ -206,7 +225,7 @@ if (broadcastStage.includes('BroadcastHeader') || broadcastStage.includes('previ
 const graphicsEditor = await read('src/components/BroadcastGraphicsEditor.tsx');
 for (const token of [
   'Bar Customization',
-  'Text is edited directly on the broadcast bars.',
+  'Move and resize graphics directly on the broadcast stage. Click text to edit it.',
   'Auto assign title / key from scene',
   'Auto — scene default',
   'COLOR_KEY_CATALOG.map',
@@ -223,6 +242,14 @@ for (const forbidden of [
   'Edit / preview profile',
   'graphics-editor-preview',
   'Preview this profile',
+  'Top position',
+  'Side inset',
+  'Bar height',
+  'X position',
+  'Y position',
+  'Width <output>',
+  'Lower-third height',
+  'Ticker height',
 ]) {
   if (graphicsEditor.includes(forbidden)) {
     throw new Error(`Text/preview editing must not live in the Broadcast Graphics customization menu: ${forbidden}`);
@@ -241,6 +268,9 @@ for (const token of [
   'linear-gradient(90deg, var(--rbr-gradient-start), var(--rbr-gradient-middle), var(--rbr-gradient-end))',
   '.broadcast-title-cap',
   '.broadcast-title-color-key',
+  '.broadcast-graphic-frame',
+  '.broadcast-graphic-resize-handle',
+  'cursor: nwse-resize',
   '.broadcast-lower-third-main',
   '.broadcast-ticker-row::after',
   '@keyframes rbr-ticker-scroll',
@@ -313,4 +343,4 @@ for (const token of [
   if (!reducer.includes(token)) throw new Error(`Fresh-launch workspace contract missing: ${token}`);
 }
 
-console.log('RBR WX architecture validation passed: rebuilt independent Broadcast Graphics module with always-present blank manual title bar, NEX GEN-style broadcast television geometry, RBR WX gradient accents, direct-on-bar text editing, scene auto-assignment, automatic/manual color keys, lower third/live ticker, shared operator/Present/PNG rendering, fresh Texas startup, one scene queue, one Show timeline.');
+console.log('RBR WX architecture validation passed: independent Broadcast Graphics module with NEX GEN-style broadcast television geometry, RBR WX gradient accents, direct-on-graphic text editing, direct drag/resize manipulation for every broadcast graphic, scene auto-assignment, automatic/manual color keys, lower third/live ticker, shared operator/Present/PNG rendering, fresh Texas startup, one scene queue, one Show timeline.');

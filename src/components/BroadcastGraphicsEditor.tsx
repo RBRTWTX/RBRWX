@@ -58,7 +58,7 @@ export function BroadcastGraphicsEditor({
         <section className="graphics-editor-status">
           <span>Current title-bar assignment</span>
           <strong>{profile?.name ?? 'Blank / Manual Title Bar'}</strong>
-          <small>Text is edited directly on the broadcast bars.</small>
+          <small>Move and resize graphics directly on the broadcast stage. Click text to edit it.</small>
         </section>
 
         <section>
@@ -115,42 +115,6 @@ export function BroadcastGraphicsEditor({
               onChange={(event: ChangeEvent<HTMLInputElement>) => onProfile(activeProfileId, { colorKeyVisible: event.target.checked })}
             />
             Show color key
-          </label>
-
-          <label>
-            Top position <output>{graphics.titleBarTop}px</output>
-            <input
-              type="range"
-              min="0"
-              max="120"
-              step="1"
-              value={graphics.titleBarTop}
-              onChange={(event: ChangeEvent<HTMLInputElement>) => onSettings({ titleBarTop: numberValue(event.target.value, 18) })}
-            />
-          </label>
-
-          <label>
-            Side inset <output>{graphics.titleBarInset}px</output>
-            <input
-              type="range"
-              min="6"
-              max="180"
-              step="1"
-              value={graphics.titleBarInset}
-              onChange={(event: ChangeEvent<HTMLInputElement>) => onSettings({ titleBarInset: numberValue(event.target.value, 12) })}
-            />
-          </label>
-
-          <label>
-            Bar height <output>{graphics.titleBarHeight}px</output>
-            <input
-              type="range"
-              min="72"
-              max="150"
-              step="1"
-              value={graphics.titleBarHeight}
-              onChange={(event: ChangeEvent<HTMLInputElement>) => onSettings({ titleBarHeight: numberValue(event.target.value, 108) })}
-            />
           </label>
 
           <label>
@@ -220,67 +184,6 @@ export function BroadcastGraphicsEditor({
             />
             Show live ticker
           </label>
-
-          <label>
-            X position <output>{graphics.lowerThirdX}%</output>
-            <input
-              type="range"
-              min="0"
-              max="90"
-              step="1"
-              value={graphics.lowerThirdX}
-              onChange={(event: ChangeEvent<HTMLInputElement>) => onSettings({ lowerThirdX: numberValue(event.target.value, 4) })}
-            />
-          </label>
-
-          <label>
-            Y position <output>{graphics.lowerThirdY}%</output>
-            <input
-              type="range"
-              min="45"
-              max="94"
-              step="1"
-              value={graphics.lowerThirdY}
-              onChange={(event: ChangeEvent<HTMLInputElement>) => onSettings({ lowerThirdY: numberValue(event.target.value, 78) })}
-            />
-          </label>
-
-          <label>
-            Width <output>{graphics.lowerThirdWidth}%</output>
-            <input
-              type="range"
-              min="30"
-              max="100"
-              step="1"
-              value={graphics.lowerThirdWidth}
-              onChange={(event: ChangeEvent<HTMLInputElement>) => onSettings({ lowerThirdWidth: numberValue(event.target.value, 92) })}
-            />
-          </label>
-
-          <label>
-            Lower-third height <output>{graphics.lowerThirdHeight}px</output>
-            <input
-              type="range"
-              min="40"
-              max="120"
-              step="1"
-              value={graphics.lowerThirdHeight}
-              onChange={(event: ChangeEvent<HTMLInputElement>) => onSettings({ lowerThirdHeight: numberValue(event.target.value, 64) })}
-            />
-          </label>
-
-          <label>
-            Ticker height <output>{graphics.tickerHeight}px</output>
-            <input
-              type="range"
-              min="26"
-              max="70"
-              step="1"
-              value={graphics.tickerHeight}
-              onChange={(event: ChangeEvent<HTMLInputElement>) => onSettings({ tickerHeight: numberValue(event.target.value, 38) })}
-            />
-          </label>
-
 
           <label>
             Bar opacity <output>{Math.round(graphics.lowerThirdOpacity * 100)}%</output>

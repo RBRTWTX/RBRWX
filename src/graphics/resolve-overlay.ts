@@ -11,9 +11,6 @@ export const MANUAL_OVERLAY_PROFILE_ID = 'manual-default';
 export const DEFAULT_BROADCAST_GRAPHICS_STATE: BroadcastGraphicsState = {
   titleBarVisible: true,
   autoAssignment: true,
-  titleBarTop: 18,
-  titleBarInset: 12,
-  titleBarHeight: 108,
   titleBarOpacity: 0.96,
   gradientStart: '#032568',
   gradientMiddle: '#531e78',
@@ -22,12 +19,12 @@ export const DEFAULT_BROADCAST_GRAPHICS_STATE: BroadcastGraphicsState = {
   tickerVisible: false,
   lowerThirdText: '',
   tickerText: '',
-  lowerThirdX: 4,
-  lowerThirdY: 78,
-  lowerThirdWidth: 92,
-  lowerThirdHeight: 64,
-  tickerHeight: 38,
   lowerThirdOpacity: 0.96,
+  geometry: {
+    'title-bar': { x: 1, y: 2.5, width: 98, height: 108 },
+    'lower-third': { x: 4, y: 78, width: 92, height: 64 },
+    'live-ticker': { x: 4, y: 87, width: 92, height: 38 },
+  },
   overrides: {},
 };
 

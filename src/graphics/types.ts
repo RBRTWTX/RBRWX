@@ -49,12 +49,16 @@ export interface BroadcastGraphicsProfileOverride {
   colorKeyId?: ColorKeyId | null;
 }
 
+export interface BroadcastGraphicGeometry {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface BroadcastGraphicsState {
   titleBarVisible: boolean;
   autoAssignment: boolean;
-  titleBarTop: number;
-  titleBarInset: number;
-  titleBarHeight: number;
   titleBarOpacity: number;
   gradientStart: string;
   gradientMiddle: string;
@@ -63,12 +67,8 @@ export interface BroadcastGraphicsState {
   tickerVisible: boolean;
   lowerThirdText: string;
   tickerText: string;
-  lowerThirdX: number;
-  lowerThirdY: number;
-  lowerThirdWidth: number;
-  lowerThirdHeight: number;
-  tickerHeight: number;
   lowerThirdOpacity: number;
+  geometry: Record<string, BroadcastGraphicGeometry>;
   overrides: Record<string, BroadcastGraphicsProfileOverride>;
 }
 

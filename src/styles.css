@@ -97,36 +97,77 @@ button, input { font: inherit; }
   --broadcast-font: "Bahnschrift Condensed", "Arial Narrow", "Segoe UI", Arial, sans-serif;
 }
 
-.broadcast-title-bar {
+/*
+ * All Broadcast Graphics use the same direct-manipulation frame contract.
+ * Operator mode: drag the graphic body to move it and drag its lower-right
+ * corner handle to resize it. Present / PNG render the stored geometry only.
+ */
+.broadcast-graphic-frame {
   position: absolute;
-  left: 50%;
-  top: var(--title-top);
-  width: calc(100% - (var(--title-inset) * 2));
-  height: var(--title-height);
-  transform: translateX(-50%);
+  pointer-events: none;
+  touch-action: none;
+  user-select: none;
+}
+.broadcast-graphic-frame.is-interactive {
+  pointer-events: auto;
+  cursor: move;
+}
+.broadcast-graphic-frame.is-interactive [contenteditable="true"] {
+  cursor: text;
+  user-select: text;
+}
+.broadcast-graphic-resize-handle {
+  position: absolute;
+  z-index: 30;
+  right: 3px;
+  bottom: 3px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-right: 3px solid rgba(255,255,255,.95);
+  border-bottom: 3px solid rgba(255,255,255,.95);
+  border-radius: 0;
+  background: rgba(5,10,16,.45);
+  box-shadow: 2px 2px 3px rgba(0,0,0,.65);
+  cursor: nwse-resize;
+  opacity: .25;
+}
+.broadcast-graphic-frame.is-interactive:hover .broadcast-graphic-resize-handle,
+.broadcast-graphic-resize-handle:focus-visible {
+  opacity: 1;
+}
+
+.broadcast-title-frame {
+  color: #f7f9fc;
+  font-family: var(--broadcast-font);
+  filter: drop-shadow(0 8px 12px rgba(0,0,0,.52));
+  opacity: var(--title-opacity);
+}
+.broadcast-title-bar {
+  position: relative;
+  width: 100%;
+  height: 100%;
   display: grid;
   grid-template-columns: 54px minmax(0, 1fr);
   align-items: center;
   overflow: visible;
   color: #f7f9fc;
   font-family: var(--broadcast-font);
-  filter: drop-shadow(0 8px 12px rgba(0,0,0,.52));
-  opacity: var(--title-opacity);
   pointer-events: none;
 }
 .broadcast-graphics-layer.is-interactive .broadcast-title-bar { pointer-events: auto; }
 
 /*
  * NEX GEN broadcast-header structure: a narrow operator cap plus one dark,
- * textured 90px title block inside the canonical 108px header envelope.
- * RBR WX changes the accent colors only; the bar itself stays broadcast-dark.
+ * textured title block. RBR WX changes the accent colors only; the bar itself
+ * stays broadcast-dark while its enclosing frame supplies direct resize/move.
  */
 .broadcast-title-cap,
 .broadcast-title-copy {
   position: relative;
-  height: calc(var(--title-height) - 18px);
+  height: calc(100% - 18px);
   min-height: 54px;
-  max-height: 132px;
   align-self: center;
   overflow: hidden;
   background:
@@ -186,13 +227,13 @@ button, input { font: inherit; }
 .broadcast-title-text {
   display: block;
   flex: 1 1 auto;
-  min-width: 180px;
+  min-width: 120px;
   min-height: 34px;
   margin: 0;
   overflow: hidden;
   color: #f7f9fc;
   font-family: var(--broadcast-font);
-  font-size: clamp(28px, calc(var(--title-height) * .43), 52px);
+  font-size: clamp(24px, calc(var(--title-height) * .43), 52px);
   font-weight: 900;
   line-height: .95;
   letter-spacing: .018em;
@@ -203,7 +244,7 @@ button, input { font: inherit; }
 .broadcast-valid-label {
   display: block;
   flex: 0 0 auto;
-  min-width: 92px;
+  min-width: 72px;
   min-height: 18px;
   max-width: 280px;
   overflow: hidden;
@@ -221,7 +262,7 @@ button, input { font: inherit; }
 }
 .broadcast-title-lower-row {
   display: grid;
-  grid-template-columns: minmax(150px, auto) minmax(220px, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(160px, auto);
   align-items: center;
   gap: 13px;
   min-width: 0;
@@ -229,7 +270,8 @@ button, input { font: inherit; }
 }
 .broadcast-subtitle-text {
   display: block;
-  min-width: 180px;
+  width: 100%;
+  min-width: 0;
   min-height: 20px;
   overflow: hidden;
   color: #dce6f2;
@@ -244,7 +286,7 @@ button, input { font: inherit; }
 }
 
 .broadcast-title-color-key {
-  min-width: 220px;
+  min-width: 160px;
   max-width: 100%;
   display: flex;
   align-items: center;
@@ -260,7 +302,7 @@ button, input { font: inherit; }
   flex: 0 0 auto;
   display: grid;
   justify-items: end;
-  min-width: 72px;
+  min-width: 62px;
   text-align: right;
   white-space: nowrap;
 }
@@ -282,7 +324,7 @@ button, input { font: inherit; }
 .title-key-track {
   flex: 1 1 auto;
   display: flex;
-  min-width: 140px;
+  min-width: 110px;
   max-width: 520px;
   height: 25px;
 }
@@ -318,27 +360,17 @@ button, input { font: inherit; }
   background: rgba(255,255,255,.035);
 }
 
-.broadcast-lower-third {
-  position: absolute;
-  left: var(--lower-third-left);
-  top: var(--lower-third-top);
-  width: var(--lower-third-width);
-  max-width: calc(100% - var(--lower-third-left));
-  overflow: hidden;
+.broadcast-lower-third-frame,
+.broadcast-ticker-frame {
   color: #f7f9fc;
   font-family: var(--broadcast-font);
   filter: drop-shadow(0 9px 14px rgba(0,0,0,.5));
-  pointer-events: none;
 }
-.broadcast-graphics-layer.is-interactive .broadcast-lower-third {
-  pointer-events: auto;
-  cursor: move;
-}
-.broadcast-graphics-layer.is-interactive .broadcast-lower-third [contenteditable="true"] { cursor: text; }
 
 .broadcast-lower-third-main {
   position: relative;
-  height: var(--lower-third-height);
+  width: 100%;
+  height: 100%;
   min-height: 40px;
   display: flex;
   align-items: center;
@@ -348,7 +380,6 @@ button, input { font: inherit; }
     repeating-linear-gradient(135deg, transparent 0 10px, rgba(255,255,255,.02) 10px 12px),
     linear-gradient(90deg, rgba(10,15,22,var(--lower-third-opacity)), rgba(22,25,33,var(--lower-third-opacity)));
   border: 1px solid rgba(255,255,255,.11);
-  border-bottom: 0;
 }
 .broadcast-lower-third-main::before {
   content: "";
@@ -370,17 +401,17 @@ button, input { font: inherit; }
 }
 .broadcast-lower-third-transition {
   width: 100%;
-  min-width: 220px;
+  min-width: 120px;
   animation: rbr-lower-third-in 320ms cubic-bezier(.2,.8,.25,1);
 }
 .broadcast-lower-third-text {
   display: block;
   width: 100%;
-  min-width: 220px;
+  min-width: 120px;
   min-height: 28px;
   overflow: hidden;
   font-family: var(--broadcast-font);
-  font-size: clamp(22px, 2.1vw, 38px);
+  font-size: clamp(18px, 2.1vw, 38px);
   font-weight: 900;
   line-height: 1;
   letter-spacing: .015em;
@@ -396,7 +427,8 @@ button, input { font: inherit; }
 
 .broadcast-ticker-row {
   position: relative;
-  height: var(--ticker-height);
+  width: 100%;
+  height: 100%;
   min-height: 26px;
   overflow: hidden;
   background: rgba(8,13,20,var(--lower-third-opacity));
@@ -435,14 +467,14 @@ button, input { font: inherit; }
   flex: 1 1 auto;
   width: 100%;
 }
-.broadcast-graphics-layer.is-interactive .broadcast-lower-third:hover .broadcast-ticker-track,
+.broadcast-ticker-frame.is-interactive:hover .broadcast-ticker-track,
 .broadcast-ticker-track:focus-within {
   animation-play-state: paused;
 }
 .broadcast-ticker-text,
 .broadcast-ticker-repeat {
   flex: 0 0 auto;
-  min-width: 260px;
+  min-width: 160px;
   min-height: 18px;
   padding: 0 38px 0 24px;
   color: #eef3f8;
