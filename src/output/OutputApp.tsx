@@ -13,7 +13,6 @@ const FALLBACK: OutputPayload = {
     context: { cities: true, roads: true, boundaries: true },
   },
   graphics: createDefaultBroadcastGraphicsState(),
-  previewOverlayProfileId: null,
   publishedAt: new Date(0).toISOString(),
 };
 
@@ -28,7 +27,6 @@ export function OutputApp() {
         scene={payload.scene}
         coreView={payload.coreView}
         graphics={payload.graphics}
-        previewOverlayProfileId={payload.previewOverlayProfileId}
         interactive={false}
       />
     </main>

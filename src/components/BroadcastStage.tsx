@@ -1,6 +1,15 @@
 import { forwardRef } from 'react';
-import type { BroadcastGraphicsRuntimeMetadata, BroadcastGraphicsState } from '../graphics/types';
-import type { CoreViewState, SceneInstance } from '../types/workspace';
+import type {
+  BroadcastGraphicsProfileOverride,
+  BroadcastGraphicsRuntimeMetadata,
+  BroadcastGraphicsState,
+} from '../graphics/types';
+import { broadcastProfileIdForScene } from '../graphics/resolve-overlay';
+import type {
+  BroadcastGraphicsSettingsPatch,
+  CoreViewState,
+  SceneInstance,
+} from '../types/workspace';
 import { CoreGlobe } from '../map/CoreGlobe';
 import { BroadcastGraphicsOverlay } from './BroadcastGraphicsOverlay';
 
@@ -10,8 +19,9 @@ interface BroadcastStageProps {
   graphics: BroadcastGraphicsState;
   interactive: boolean;
   overlayMetadata?: BroadcastGraphicsRuntimeMetadata;
-  previewOverlayProfileId?: string | null;
   onSceneCameraChange?: (sceneId: string, camera: SceneInstance['camera']) => void;
+  onGraphicsProfile?: (profileId: string, patch: Partial<BroadcastGraphicsProfileOverride>) => void;
+  onGraphicsSettings?: (patch: BroadcastGraphicsSettingsPatch) => void;
 }
 
 export const BroadcastStage = forwardRef<HTMLDivElement, BroadcastStageProps>(function BroadcastStage(
@@ -21,16 +31,15 @@ export const BroadcastStage = forwardRef<HTMLDivElement, BroadcastStageProps>(fu
     graphics,
     interactive,
     overlayMetadata,
-    previewOverlayProfileId = null,
     onSceneCameraChange,
+    onGraphicsProfile,
+    onGraphicsSettings,
   },
   ref,
 ) {
   const view = scene ?? coreView;
-  const sceneOverlayProfileId = scene?.overlayProfileId ?? null;
-  const overlayProfileId = sceneOverlayProfileId && sceneOverlayProfileId !== 'none'
-    ? sceneOverlayProfileId
-    : previewOverlayProfileId ?? sceneOverlayProfileId ?? 'none';
+  const overlayProfileId = broadcastProfileIdForScene(scene?.overlayProfileId, graphics);
+
   return (
     <div className="broadcast-stage" ref={ref}>
       <CoreGlobe
@@ -45,7 +54,10 @@ export const BroadcastStage = forwardRef<HTMLDivElement, BroadcastStageProps>(fu
       <BroadcastGraphicsOverlay
         profileId={overlayProfileId}
         graphics={graphics}
+        interactive={interactive}
         metadata={overlayMetadata}
+        onProfile={onGraphicsProfile}
+        onSettings={onGraphicsSettings}
       />
     </div>
   );

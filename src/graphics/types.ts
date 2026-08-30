@@ -17,7 +17,6 @@ export type ColorKeyId =
 
 export type BroadcastOverlayPolicy = 'standard' | 'suppressed';
 export type TitleBarVariant = 'standard' | 'model' | 'tropical';
-export type ColorKeyPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
 export interface ColorKeyStop {
   label: string;
@@ -46,21 +45,30 @@ export interface BroadcastGraphicsProfileOverride {
   title?: string;
   subtitle?: string;
   validLabel?: string;
-  titleBarVisible?: boolean;
   colorKeyVisible?: boolean;
   colorKeyId?: ColorKeyId | null;
 }
 
 export interface BroadcastGraphicsState {
-  enabled: boolean;
+  titleBarVisible: boolean;
+  autoAssignment: boolean;
   titleBarTop: number;
   titleBarInset: number;
+  titleBarHeight: number;
   titleBarOpacity: number;
-  titleScale: number;
-  colorKeyPosition: ColorKeyPosition;
-  colorKeyScale: number;
-  previewProfileId: string;
-  previewOnStage: boolean;
+  gradientStart: string;
+  gradientMiddle: string;
+  gradientEnd: string;
+  lowerThirdVisible: boolean;
+  tickerVisible: boolean;
+  lowerThirdText: string;
+  tickerText: string;
+  lowerThirdX: number;
+  lowerThirdY: number;
+  lowerThirdWidth: number;
+  lowerThirdHeight: number;
+  tickerHeight: number;
+  lowerThirdOpacity: number;
   overrides: Record<string, BroadcastGraphicsProfileOverride>;
 }
 

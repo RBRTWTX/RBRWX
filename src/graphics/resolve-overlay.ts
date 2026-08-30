@@ -6,21 +6,44 @@ import type {
   ResolvedBroadcastGraphics,
 } from './types';
 
+export const MANUAL_OVERLAY_PROFILE_ID = 'manual-default';
+
 export const DEFAULT_BROADCAST_GRAPHICS_STATE: BroadcastGraphicsState = {
-  enabled: true,
-  titleBarTop: 16,
-  titleBarInset: 18,
-  titleBarOpacity: 0.88,
-  titleScale: 1,
-  colorKeyPosition: 'bottom-right',
-  colorKeyScale: 1,
-  previewProfileId: 'observations-temperature',
-  previewOnStage: false,
+  titleBarVisible: true,
+  autoAssignment: true,
+  titleBarTop: 18,
+  titleBarInset: 12,
+  titleBarHeight: 108,
+  titleBarOpacity: 0.96,
+  gradientStart: '#032568',
+  gradientMiddle: '#531e78',
+  gradientEnd: '#cb1678',
+  lowerThirdVisible: false,
+  tickerVisible: false,
+  lowerThirdText: '',
+  tickerText: '',
+  lowerThirdX: 4,
+  lowerThirdY: 78,
+  lowerThirdWidth: 92,
+  lowerThirdHeight: 64,
+  tickerHeight: 38,
+  lowerThirdOpacity: 0.96,
   overrides: {},
 };
 
 export function createDefaultBroadcastGraphicsState(): BroadcastGraphicsState {
   return structuredClone(DEFAULT_BROADCAST_GRAPHICS_STATE);
+}
+
+export function broadcastProfileIdForScene(
+  sceneOverlayProfileId: string | null | undefined,
+  state: BroadcastGraphicsState,
+): string {
+  if (sceneOverlayProfileId === 'text-forecast') return 'text-forecast';
+  if (state.autoAssignment && sceneOverlayProfileId && sceneOverlayProfileId !== 'none') {
+    return sceneOverlayProfileId;
+  }
+  return MANUAL_OVERLAY_PROFILE_ID;
 }
 
 export function resolveBroadcastGraphics(
@@ -29,7 +52,7 @@ export function resolveBroadcastGraphics(
   metadata: BroadcastGraphicsRuntimeMetadata = {},
 ): ResolvedBroadcastGraphics | null {
   const profile = overlayProfile(profileId);
-  if (!profile || profile.policy === 'suppressed' || !state.enabled) return null;
+  if (!profile || profile.policy === 'suppressed') return null;
 
   const override = state.overrides[profileId] ?? {};
   const effectiveKeyId = override.colorKeyId !== undefined ? override.colorKeyId : profile.colorKeyId;
@@ -38,10 +61,10 @@ export function resolveBroadcastGraphics(
   return {
     profileId: profile.id,
     titleBarVariant: profile.titleBarVariant,
-    title: metadata.title ?? override.title ?? profile.title,
-    subtitle: metadata.subtitle ?? override.subtitle ?? profile.subtitle,
-    validLabel: metadata.validLabel ?? override.validLabel ?? profile.validLabel,
-    titleBarVisible: override.titleBarVisible ?? true,
+    title: override.title ?? metadata.title ?? profile.title,
+    subtitle: override.subtitle ?? metadata.subtitle ?? profile.subtitle,
+    validLabel: override.validLabel ?? metadata.validLabel ?? profile.validLabel,
+    titleBarVisible: state.titleBarVisible,
     colorKeyVisible: (override.colorKeyVisible ?? true) && key !== null,
     colorKey: key,
   };

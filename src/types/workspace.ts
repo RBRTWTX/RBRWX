@@ -1,7 +1,6 @@
 import type {
   BroadcastGraphicsProfileOverride,
   BroadcastGraphicsState,
-  ColorKeyPosition,
 } from '../graphics/types';
 
 export type BasemapId = 'standard' | 'dark' | 'satellite';
@@ -70,17 +69,7 @@ export interface WorkspaceState {
   graphics: BroadcastGraphicsState;
 }
 
-export type BroadcastGraphicsSettingsPatch = Partial<{
-  enabled: boolean;
-  titleBarTop: number;
-  titleBarInset: number;
-  titleBarOpacity: number;
-  titleScale: number;
-  colorKeyPosition: ColorKeyPosition;
-  colorKeyScale: number;
-  previewProfileId: string;
-  previewOnStage: boolean;
-}>;
+export type BroadcastGraphicsSettingsPatch = Partial<Omit<BroadcastGraphicsState, 'overrides'>>;
 
 export type WorkspaceAction =
   | { type: 'scene/add'; definition: ProductDefinition }

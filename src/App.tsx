@@ -7,11 +7,11 @@ import { ProductLibraryDialog } from './components/ProductLibraryDialog';
 import { ScenePane } from './components/ScenePane';
 import { ShowPane } from './components/ShowPane';
 import { TopBar } from './components/TopBar';
+import { broadcastProfileIdForScene } from './graphics/resolve-overlay';
 import { useScenePreloading } from './hooks/useScenePreloading';
 import { exportStage } from './output/export-stage';
 import { publishOutput } from './output/output-sync';
 import { EMPTY_WORKSPACE, workspaceReducer } from './state/workspace-reducer';
-
 
 export function App() {
   const [state, dispatch] = useReducer(workspaceReducer, undefined, () => structuredClone(EMPTY_WORKSPACE));
@@ -26,28 +26,22 @@ export function App() {
 
   const activeBasemap = selectedScene?.basemap ?? state.coreView.basemap;
   const activeContext = selectedScene?.context ?? state.coreView.context;
-  const previewOverlayProfileId = (!selectedScene || selectedScene.overlayProfileId === 'none')
-    && state.graphicsOpen
-    && state.graphics.previewOnStage
-    ? state.graphics.previewProfileId
-    : null;
+  const activeGraphicsProfileId = broadcastProfileIdForScene(selectedScene?.overlayProfileId, state.graphics);
 
   useEffect(() => {
     publishOutput({
       scene: selectedScene ? structuredClone(selectedScene) : null,
       coreView: structuredClone(state.coreView),
       graphics: structuredClone(state.graphics),
-      previewOverlayProfileId,
       publishedAt: new Date().toISOString(),
     });
-  }, [selectedScene, state.coreView, state.graphics, previewOverlayProfileId]);
+  }, [selectedScene, state.coreView, state.graphics]);
 
   async function present(): Promise<void> {
     publishOutput({
       scene: selectedScene ? structuredClone(selectedScene) : null,
       coreView: structuredClone(state.coreView),
       graphics: structuredClone(state.graphics),
-      previewOverlayProfileId,
       publishedAt: new Date().toISOString(),
     });
     try {
@@ -91,9 +85,10 @@ export function App() {
           scene={selectedScene}
           coreView={state.coreView}
           graphics={state.graphics}
-          previewOverlayProfileId={previewOverlayProfileId}
           interactive
           onSceneCameraChange={(sceneId, camera) => dispatch({ type: 'scene/camera', sceneId, camera })}
+          onGraphicsProfile={(profileId, patch) => dispatch({ type: 'graphics/profile', profileId, patch })}
+          onGraphicsSettings={(patch) => dispatch({ type: 'graphics/settings', patch })}
         />
       </section>
 
@@ -108,11 +103,10 @@ export function App() {
       <BroadcastGraphicsEditor
         open={state.graphicsOpen}
         graphics={state.graphics}
-        activeProfileId={selectedScene?.overlayProfileId ?? null}
+        activeProfileId={activeGraphicsProfileId}
         onClose={() => dispatch({ type: 'ui/graphics', open: false })}
         onSettings={(patch) => dispatch({ type: 'graphics/settings', patch })}
         onProfile={(profileId, patch) => dispatch({ type: 'graphics/profile', profileId, patch })}
-        onResetProfile={(profileId) => dispatch({ type: 'graphics/reset-profile', profileId })}
         onResetAll={() => dispatch({ type: 'graphics/reset-all' })}
       />
 

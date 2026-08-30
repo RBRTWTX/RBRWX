@@ -5,12 +5,11 @@ export interface OutputPayload {
   scene: SceneInstance | null;
   coreView: CoreViewState;
   graphics: BroadcastGraphicsState;
-  previewOverlayProfileId: string | null;
   publishedAt: string;
 }
 
-const STORAGE_KEY = 'rbr-wx-output-payload-v2';
-const CHANNEL = 'rbr-wx-output-v2';
+const STORAGE_KEY = 'rbr-wx-output-payload-v3';
+const CHANNEL = 'rbr-wx-output-v3';
 
 export function publishOutput(payload: OutputPayload): void {
   const serialized = JSON.stringify(payload);

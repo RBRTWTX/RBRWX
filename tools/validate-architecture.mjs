@@ -14,6 +14,8 @@ for (const file of [
   'src/components/ProductLibraryDialog.tsx',
   'src/components/BroadcastGraphicsEditor.tsx',
   'src/components/BroadcastGraphicsOverlay.tsx',
+  'src/components/BroadcastEditableText.tsx',
+  'src/components/BroadcastStage.tsx',
   'src/graphics/types.ts',
   'src/graphics/color-key-catalog.ts',
   'src/graphics/overlay-profiles.ts',
@@ -33,6 +35,9 @@ for (const token of [
   'selectedSceneId: scene.id',
   "case 'scene/move'",
   "case 'scene/remove'",
+  "case 'graphics/settings'",
+  "case 'graphics/profile'",
+  "case 'graphics/reset-all'",
 ]) {
   if (!reducer.includes(token)) throw new Error(`Workspace contract missing: ${token}`);
 }
@@ -46,10 +51,15 @@ for (const token of [
   '<BroadcastStage',
   '<BroadcastGraphicsEditor',
   'graphics={state.graphics}',
-  "selectedScene.overlayProfileId === 'none'",
+  'broadcastProfileIdForScene',
+  'onGraphicsProfile=',
+  'onGraphicsSettings=',
   'publishOutput',
 ]) {
   if (!app.includes(token)) throw new Error(`Application composition missing: ${token}`);
+}
+if (app.includes('previewOverlayProfileId') || app.includes('previewOnStage')) {
+  throw new Error('Rejected profile-preview workflow must not remain in the rebuilt Broadcast Graphics system.');
 }
 
 const showPane = await read('src/components/ShowPane.tsx');
@@ -92,6 +102,7 @@ for (const token of [
   'graphics: BroadcastGraphicsState',
   "'graphics/profile'",
   "'graphics/reset-all'",
+  "Partial<Omit<BroadcastGraphicsState, 'overrides'>>",
 ]) {
   if (!workspaceTypes.includes(token)) throw new Error(`Broadcast graphics workspace contract missing: ${token}`);
 }
@@ -103,6 +114,7 @@ for (const forbidden of ['HeaderDefinition', 'LegendDefinition', 'header:', 'leg
 
 const overlayProfiles = await read('src/graphics/overlay-profiles.ts');
 for (const token of [
+  "standard('manual-default', 'Blank / Manual Title Bar', '', '', '', null)",
   "suppressed('text-forecast'",
   "standard('radar-ewx'",
   "standard('observations-temperature'",
@@ -134,41 +146,118 @@ for (const key of [
 
 const resolver = await read('src/graphics/resolve-overlay.ts');
 for (const token of [
-  "profile.policy === 'suppressed'",
+  "MANUAL_OVERLAY_PROFILE_ID = 'manual-default'",
+  'titleBarVisible: true',
+  'autoAssignment: true',
+  "gradientStart: '#032568'",
+  "gradientMiddle: '#531e78'",
+  "gradientEnd: '#cb1678'",
+  'lowerThirdVisible: false',
+  'tickerVisible: false',
+  "lowerThirdText: ''",
+  "tickerText: ''",
+  "sceneOverlayProfileId === 'text-forecast'",
+  'state.autoAssignment',
   'state.overrides[profileId]',
   'override.colorKeyId !== undefined',
   'colorKeyDefinition(effectiveKeyId)',
 ]) {
-  if (!resolver.includes(token)) throw new Error(`Automatic overlay resolver contract missing: ${token}`);
+  if (!resolver.includes(token)) throw new Error(`Broadcast Graphics resolver/default contract missing: ${token}`);
+}
+
+const editableText = await read('src/components/BroadcastEditableText.tsx');
+for (const token of [
+  'contentEditable: interactive',
+  'onBlur: commit',
+  "event.key === 'Enter'",
+  "event.key === 'Escape'",
+]) {
+  if (!editableText.includes(token)) throw new Error(`Direct-on-graphic text editing contract missing: ${token}`);
+}
+
+const overlay = await read('src/components/BroadcastGraphicsOverlay.tsx');
+for (const token of [
+  '<BroadcastEditableText',
+  'broadcast-title-text',
+  'broadcast-valid-label',
+  'broadcast-subtitle-text',
+  'broadcast-title-color-key',
+  'broadcast-lower-third-text',
+  'broadcast-ticker-text',
+  'onPointerDown={beginLowerThirdDrag}',
+]) {
+  if (!overlay.includes(token)) throw new Error(`Broadcast Graphics renderer missing: ${token}`);
 }
 
 const broadcastStage = await read('src/components/BroadcastStage.tsx');
-if (
-  !broadcastStage.includes('<BroadcastGraphicsOverlay')
-  || !broadcastStage.includes("sceneOverlayProfileId !== 'none'")
-  || broadcastStage.includes('BroadcastHeader')
-) {
-  throw new Error('Broadcast stage must use the shared Broadcast Graphics resolver with scene-first preview fallback.');
+for (const token of [
+  'broadcastProfileIdForScene',
+  '<BroadcastGraphicsOverlay',
+  'interactive={interactive}',
+  'onProfile={onGraphicsProfile}',
+  'onSettings={onGraphicsSettings}',
+]) {
+  if (!broadcastStage.includes(token)) throw new Error(`Shared Broadcast Graphics stage contract missing: ${token}`);
+}
+if (broadcastStage.includes('BroadcastHeader') || broadcastStage.includes('previewOverlayProfileId')) {
+  throw new Error('Broadcast stage must use only the rebuilt independent Broadcast Graphics renderer.');
 }
 
 const graphicsEditor = await read('src/components/BroadcastGraphicsEditor.tsx');
 for (const token of [
-  'Auto — profile default',
+  'Bar Customization',
+  'Text is edited directly on the broadcast bars.',
+  'Auto assign title / key from scene',
+  'Auto — scene default',
   'COLOR_KEY_CATALOG.map',
-  'Reset This Profile',
-  'Shared Layout',
-  'Preview this profile on map / Present / PNG',
+  'Show lower third',
+  'Show live ticker',
+  'type="color"',
 ]) {
-  if (!graphicsEditor.includes(token)) throw new Error(`Independent Broadcast Graphics editor missing: ${token}`);
+  if (!graphicsEditor.includes(token)) throw new Error(`Broadcast Graphics customization menu missing: ${token}`);
+}
+for (const forbidden of [
+  'override.title ??',
+  'override.subtitle ??',
+  'override.validLabel ??',
+  'Edit / preview profile',
+  'graphics-editor-preview',
+  'Preview this profile',
+]) {
+  if (graphicsEditor.includes(forbidden)) {
+    throw new Error(`Text/preview editing must not live in the Broadcast Graphics customization menu: ${forbidden}`);
+  }
+}
+
+
+if (graphicsEditor.includes('Ticker speed') || graphicsEditor.includes('tickerSpeed')) {
+  throw new Error('Ticker speed control was not requested and must not be added to the customization menu.');
+}
+
+const styles = await read('src/styles.css');
+for (const token of [
+  '"Bahnschrift Condensed"',
+  'repeating-linear-gradient(135deg',
+  'linear-gradient(90deg, var(--rbr-gradient-start), var(--rbr-gradient-middle), var(--rbr-gradient-end))',
+  '.broadcast-title-cap',
+  '.broadcast-title-color-key',
+  '.broadcast-lower-third-main',
+  '.broadcast-ticker-row::after',
+  '@keyframes rbr-ticker-scroll',
+  'animation: rbr-ticker-scroll 18s linear infinite',
+  '.broadcast-lower-third-transition',
+  '@keyframes rbr-lower-third-in',
+]) {
+  if (!styles.includes(token)) throw new Error(`Broadcast television graphics style contract missing: ${token}`);
 }
 
 const outputSync = await read('src/output/output-sync.ts');
 if (
   !outputSync.includes('graphics: BroadcastGraphicsState')
-  || !outputSync.includes('previewOverlayProfileId: string | null')
-  || !outputSync.includes('rbr-wx-output-payload-v2')
+  || !outputSync.includes('rbr-wx-output-payload-v3')
+  || outputSync.includes('previewOverlayProfileId')
 ) {
-  throw new Error('Present/output payload must carry the same Broadcast Graphics state and graphics preview.');
+  throw new Error('Present/output payload must carry the rebuilt Broadcast Graphics state without rejected preview state.');
 }
 
 const map = await read('src/map/CoreGlobe.tsx');
@@ -224,4 +313,4 @@ for (const token of [
   if (!reducer.includes(token)) throw new Error(`Fresh-launch workspace contract missing: ${token}`);
 }
 
-console.log('RBR WX architecture validation passed: 0.2.0 independent Broadcast Graphics registry/editor/color keys, automatic scene overlay resolution, shared operator/Present/PNG rendering, fresh Windows-session startup, Texas map foundation, one scene queue, one Show timeline, immediate preload requests, shared cache.');
+console.log('RBR WX architecture validation passed: rebuilt independent Broadcast Graphics module with always-present blank manual title bar, NEX GEN-style broadcast television geometry, RBR WX gradient accents, direct-on-bar text editing, scene auto-assignment, automatic/manual color keys, lower third/live ticker, shared operator/Present/PNG rendering, fresh Texas startup, one scene queue, one Show timeline.');

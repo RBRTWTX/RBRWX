@@ -31,6 +31,7 @@ const standard = (
 });
 
 export const BROADCAST_OVERLAY_PROFILES: readonly BroadcastOverlayProfile[] = [
+  standard('manual-default', 'Blank / Manual Title Bar', '', '', '', null),
   suppressed('none', 'No Broadcast Overlay'),
   suppressed('text-forecast', 'Text Forecast — Standard Overlay Suppressed'),
 

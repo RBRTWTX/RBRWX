@@ -19,7 +19,8 @@ if (packageJson.dependencies['@tauri-apps/api'] !== '2.11.1') {
 if (!cargo.includes('version = "0.2.0"')) {
   throw new Error('RBR WX Rust package version mismatch.');
 }
-if (!cargoLock.includes('name = "rbr-wx"\nversion = "0.2.0"')) {
+const normalizedCargoLock = cargoLock.replace(/\r\n/g, '\n');
+if (!normalizedCargoLock.includes('name = "rbr-wx"\nversion = "0.2.0"')) {
   throw new Error('RBR WX Cargo lockfile package version mismatch.');
 }
 if (!cargo.includes('tauri = { version = "=2.11.5"')) {
