@@ -2,6 +2,7 @@ import { useEffect, useMemo, useReducer, useRef } from 'react';
 import { Window } from '@tauri-apps/api/window';
 import { BroadcastStage } from './components/BroadcastStage';
 import { BroadcastGraphicsEditor } from './components/BroadcastGraphicsEditor';
+import { BroadcastAssetsWindow } from './components/BroadcastAssetsWindow';
 import { HiddenMenu } from './components/HiddenMenu';
 import { ProductLibraryDialog } from './components/ProductLibraryDialog';
 import { ScenePane } from './components/ScenePane';
@@ -108,6 +109,14 @@ export function App() {
         onSettings={(patch) => dispatch({ type: 'graphics/settings', patch })}
         onProfile={(profileId, patch) => dispatch({ type: 'graphics/profile', profileId, patch })}
         onResetAll={() => dispatch({ type: 'graphics/reset-all' })}
+        onAssets={() => dispatch({ type: 'ui/assets', open: true })}
+      />
+
+      <BroadcastAssetsWindow
+        open={state.assetsOpen}
+        graphics={state.graphics}
+        onClose={() => dispatch({ type: 'ui/assets', open: false })}
+        onSettings={(patch) => dispatch({ type: 'graphics/settings', patch })}
       />
 
       <ProductLibraryDialog

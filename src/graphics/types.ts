@@ -56,6 +56,19 @@ export interface BroadcastGraphicGeometry {
   height: number;
 }
 
+export interface BroadcastCustomAsset {
+  id: string;
+  name: string;
+  dataUrl: string;
+}
+
+export interface BroadcastAssetInstance {
+  id: string;
+  source: 'builtin' | 'custom';
+  assetId: string;
+  geometry: BroadcastGraphicGeometry;
+}
+
 export interface BroadcastGraphicsState {
   titleBarVisible: boolean;
   autoAssignment: boolean;
@@ -69,6 +82,8 @@ export interface BroadcastGraphicsState {
   tickerText: string;
   lowerThirdOpacity: number;
   geometry: Record<string, BroadcastGraphicGeometry>;
+  customAssets: BroadcastCustomAsset[];
+  placedAssets: BroadcastAssetInstance[];
   overrides: Record<string, BroadcastGraphicsProfileOverride>;
 }
 

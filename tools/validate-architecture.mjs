@@ -15,9 +15,12 @@ for (const file of [
   'src/components/BroadcastGraphicsEditor.tsx',
   'src/components/BroadcastGraphicsOverlay.tsx',
   'src/components/BroadcastEditableText.tsx',
+  'src/components/BroadcastAssetArtwork.tsx',
+  'src/components/BroadcastAssetsWindow.tsx',
   'src/components/BroadcastStage.tsx',
   'src/graphics/types.ts',
   'src/graphics/color-key-catalog.ts',
+  'src/graphics/broadcast-asset-catalog.ts',
   'src/graphics/overlay-profiles.ts',
   'src/graphics/resolve-overlay.ts',
   'src/map/CoreGlobe.tsx',
@@ -204,6 +207,12 @@ for (const token of [
   'broadcast-lower-third-text',
   'broadcast-ticker-text',
   'changeGeometry',
+  'graphics.placedAssets.map',
+  'broadcastAssetDefinition',
+  '<BroadcastAssetArtwork',
+  'onRemove={() => onSettings?.({ titleBarVisible: false })}',
+  'onRemove={() => onSettings?.({ lowerThirdVisible: false })}',
+  'onRemove={() => onSettings?.({ tickerVisible: false })}',
 ]) {
   if (!overlay.includes(token)) throw new Error(`Broadcast Graphics renderer missing: ${token}`);
 }
@@ -232,6 +241,8 @@ for (const token of [
   'Show lower third',
   'Show live ticker',
   'type="color"',
+  'className="graphics-assets-button"',
+  '>Assets</button>',
 ]) {
   if (!graphicsEditor.includes(token)) throw new Error(`Broadcast Graphics customization menu missing: ${token}`);
 }
@@ -277,8 +288,61 @@ for (const token of [
   'animation: rbr-ticker-scroll 18s linear infinite',
   '.broadcast-lower-third-transition',
   '@keyframes rbr-lower-third-in',
+  '.broadcast-assets-window',
+  '.broadcast-assets-grid',
+  '.broadcast-asset-frame',
+  '.broadcast-graphic-remove-handle',
 ]) {
   if (!styles.includes(token)) throw new Error(`Broadcast television graphics style contract missing: ${token}`);
+}
+
+const assetTypes = await read('src/graphics/types.ts');
+for (const token of ['export interface BroadcastCustomAsset', 'export interface BroadcastAssetInstance', 'customAssets: BroadcastCustomAsset[]', 'placedAssets: BroadcastAssetInstance[]']) {
+  if (!assetTypes.includes(token)) throw new Error('Broadcast Assets state contract missing: ' + token);
+}
+
+const assetWorkspace = await read('src/types/workspace.ts');
+for (const token of ['assetsOpen: boolean', "type: 'ui/assets'"]) {
+  if (!assetWorkspace.includes(token)) throw new Error('Broadcast Assets UI contract missing: ' + token);
+}
+
+const assetCatalog = await read('src/graphics/broadcast-asset-catalog.ts');
+for (const category of ['Alert / Warning / Watch / Advisory','Radar','Satellite','Lightning','Temperature','Wind','Rain / Precipitation','Tropical / Hurricane','Location / Marker','Fronts','Thunderstorms','Winter Related','Heat Related','Freeze Related']) {
+  if (!assetCatalog.includes("name: '" + category + "'")) throw new Error('Broadcast Assets category missing: ' + category);
+}
+
+const assetsWindow = await read('src/components/BroadcastAssetsWindow.tsx');
+for (const token of ['BROADCAST_ASSET_CATEGORIES.map', 'Upload own image to library', 'type="file"', 'accept="image/*"', 'FileReader', 'placedAssets', 'customAssets']) {
+  if (!assetsWindow.includes(token)) throw new Error('Broadcast Assets toolbox contract missing: ' + token);
+}
+
+const assetArtwork = await read('src/components/BroadcastAssetArtwork.tsx');
+for (const token of ["@iconify/icons-wi/lightning", "@iconify/icons-wi/hurricane", "@iconify/icons-mdi/radar", "@iconify/icons-mdi/satellite-variant", "@iconify/icons-mdi/map-marker", 'FrontSymbol', 'AlertBox']) {
+  if (!assetArtwork.includes(token)) throw new Error('Broadcast Assets open-source artwork contract missing: ' + token);
+}
+
+const graphicFrame = await read('src/components/BroadcastGraphicFrame.tsx');
+for (const token of ['onRemove?: () => void', 'broadcast-graphic-remove-handle', '>×</button>']) {
+  if (!graphicFrame.includes(token)) throw new Error('Broadcast Graphic remove-control contract missing: ' + token);
+}
+
+const assetAppSource = await read('src/App.tsx');
+for (const token of ['BroadcastAssetsWindow', 'open={state.assetsOpen}', "type: 'ui/assets'"]) {
+  if (!assetAppSource.includes(token)) throw new Error('Broadcast Assets app host missing: ' + token);
+}
+
+const reducerSource = await read('src/state/workspace-reducer.ts');
+for (const token of ['assetsOpen: false', "case 'ui/assets':"]) {
+  if (!reducerSource.includes(token)) throw new Error('Broadcast Assets reducer missing: ' + token);
+}
+
+const packageJson = JSON.parse(await read('package.json'));
+if (packageJson.devDependencies?.['@iconify/icons-wi'] !== '1.2.3') throw new Error('Weather Icons package version mismatch.');
+if (packageJson.devDependencies?.['@iconify/icons-mdi'] !== '1.2.48') throw new Error('MDI package version mismatch.');
+
+const thirdParty = await read('docs/THIRD_PARTY_BROADCAST_ASSETS.md');
+for (const token of ['Weather Icons','SIL Open Font License 1.1','Material Design Icons','Apache License 2.0','NWS front symbology']) {
+  if (!thirdParty.includes(token)) throw new Error('Third-party Broadcast Assets notice missing: ' + token);
 }
 
 const outputSync = await read('src/output/output-sync.ts');

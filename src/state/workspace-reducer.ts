@@ -14,6 +14,7 @@ export const EMPTY_WORKSPACE: WorkspaceState = {
   libraryOpen: false,
   hiddenMenuOpen: false,
   graphicsOpen: false,
+  assetsOpen: false,
   coreView: {
     basemap: 'standard',
     camera: texasHomeCamera(),
@@ -160,6 +161,8 @@ export function workspaceReducer(state: WorkspaceState, action: WorkspaceAction)
         graphicsOpen: action.open,
         hiddenMenuOpen: action.open ? false : state.hiddenMenuOpen,
       };
+    case 'ui/assets':
+      return { ...state, assetsOpen: action.open };
     case 'ui/show-collapsed':
       return { ...state, showCollapsed: action.value };
     case 'workspace/reset':

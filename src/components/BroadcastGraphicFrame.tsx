@@ -13,6 +13,8 @@ interface BroadcastGraphicFrameProps extends PropsWithChildren {
   minWidth?: number;
   minHeight?: number;
   onGeometry?: (graphicId: string, geometry: BroadcastGraphicGeometry) => void;
+  onRemove?: () => void;
+  removeLabel?: string;
   title?: string;
 }
 
@@ -22,7 +24,7 @@ function clamp(value: number, min: number, max: number): number {
 
 function isEditableTarget(target: EventTarget | null): boolean {
   return target instanceof HTMLElement
-    && Boolean(target.closest('[contenteditable="true"], .broadcast-graphic-resize-handle'));
+    && Boolean(target.closest('[contenteditable="true"], .broadcast-graphic-resize-handle, .broadcast-graphic-remove-handle'));
 }
 
 export function BroadcastGraphicFrame({
@@ -33,6 +35,8 @@ export function BroadcastGraphicFrame({
   minWidth = 18,
   minHeight = 26,
   onGeometry,
+  onRemove,
+  removeLabel,
   title,
   children,
 }: BroadcastGraphicFrameProps) {
@@ -131,6 +135,16 @@ export function BroadcastGraphicFrame({
       title={interactive ? title ?? 'Drag to move. Drag the corner handle to resize.' : undefined}
     >
       {children}
+      {interactive && onRemove && (
+        <button
+          type="button"
+          className="broadcast-graphic-remove-handle"
+          aria-label={removeLabel ?? `Remove ${graphicId}`}
+          title={removeLabel ?? `Remove ${graphicId}`}
+          onPointerDown={(event) => { event.preventDefault(); event.stopPropagation(); }}
+          onClick={(event) => { event.preventDefault(); event.stopPropagation(); onRemove(); }}
+        >×</button>
+      )}
       {interactive && (
         <button
           type="button"

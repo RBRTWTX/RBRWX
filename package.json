@@ -24,6 +24,8 @@
     "react-dom": "19.2.0"
   },
   "devDependencies": {
+    "@iconify/icons-mdi": "1.2.48",
+    "@iconify/icons-wi": "1.2.3",
     "@tauri-apps/cli": "2.11.4",
     "@types/node": "24.0.0",
     "@types/react": "19.2.13",

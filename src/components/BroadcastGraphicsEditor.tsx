@@ -17,6 +17,7 @@ interface BroadcastGraphicsEditorProps {
   onSettings: (patch: BroadcastGraphicsSettingsPatch) => void;
   onProfile: (profileId: string, patch: Partial<BroadcastGraphicsProfileOverride>) => void;
   onResetAll: () => void;
+  onAssets: () => void;
 }
 
 function numberValue(value: string, fallback: number): number {
@@ -32,6 +33,7 @@ export function BroadcastGraphicsEditor({
   onSettings,
   onProfile,
   onResetAll,
+  onAssets,
 }: BroadcastGraphicsEditorProps) {
   if (!open) return null;
 
@@ -59,6 +61,7 @@ export function BroadcastGraphicsEditor({
           <span>Current title-bar assignment</span>
           <strong>{profile?.name ?? 'Blank / Manual Title Bar'}</strong>
           <small>Move and resize graphics directly on the broadcast stage. Click text to edit it.</small>
+          <button type="button" className="graphics-assets-button" onClick={onAssets}>Assets</button>
         </section>
 
         <section>

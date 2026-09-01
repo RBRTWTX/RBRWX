@@ -6,9 +6,11 @@ import type {
   BroadcastGraphicsRuntimeMetadata,
   BroadcastGraphicsState,
 } from '../graphics/types';
+import { broadcastAssetDefinition } from '../graphics/broadcast-asset-catalog';
 import { resolveBroadcastGraphics } from '../graphics/resolve-overlay';
 import { BroadcastEditableText } from './BroadcastEditableText';
 import { BroadcastGraphicFrame } from './BroadcastGraphicFrame';
+import { BroadcastAssetArtwork } from './BroadcastAssetArtwork';
 
 interface BroadcastGraphicsOverlayProps {
   profileId: string;
@@ -73,6 +75,8 @@ export function BroadcastGraphicsOverlay({
           minWidth={40}
           minHeight={72}
           onGeometry={changeGeometry}
+          onRemove={() => onSettings?.({ titleBarVisible: false })}
+          removeLabel="Remove title bar"
           title="Drag the title bar to move it. Drag the corner handle to resize it. Click text to edit."
         >
           <header className={`broadcast-title-bar variant-${resolved.titleBarVariant}`}>
@@ -142,6 +146,8 @@ export function BroadcastGraphicsOverlay({
           minWidth={24}
           minHeight={40}
           onGeometry={changeGeometry}
+          onRemove={() => onSettings?.({ lowerThirdVisible: false })}
+          removeLabel="Remove lower third"
           title="Drag the lower third to move it. Drag the corner handle to resize it. Click text to edit."
         >
           <div className="broadcast-lower-third-main">
@@ -159,6 +165,37 @@ export function BroadcastGraphicsOverlay({
         </BroadcastGraphicFrame>
       )}
 
+      {graphics.placedAssets.map((instance) => {
+        const builtin = instance.source === 'builtin' ? broadcastAssetDefinition(instance.assetId) : undefined;
+        const custom = instance.source === 'custom' ? graphics.customAssets.find((asset) => asset.id === instance.assetId) : undefined;
+        if (!builtin && !custom) return null;
+        const label = builtin?.name ?? custom?.name ?? 'Broadcast asset';
+        return (
+          <BroadcastGraphicFrame
+            key={instance.id}
+            graphicId={instance.id}
+            className="broadcast-asset-frame"
+            geometry={instance.geometry}
+            interactive={interactive}
+            minWidth={4}
+            minHeight={28}
+            onGeometry={(_, nextGeometry) => onSettings?.({
+              placedAssets: graphics.placedAssets.map((item) => item.id === instance.id ? { ...item, geometry: nextGeometry } : item),
+            })}
+            onRemove={() => onSettings?.({ placedAssets: graphics.placedAssets.filter((item) => item.id !== instance.id) })}
+            removeLabel={'Remove ' + label}
+            title={'Drag ' + label + ' to move it. Drag the corner handle to resize it.'}
+          >
+            <BroadcastAssetArtwork
+              artworkKey={builtin?.artworkKey}
+              customDataUrl={custom?.dataUrl}
+              label={label}
+              className="broadcast-asset-stage-artwork"
+            />
+          </BroadcastGraphicFrame>
+        );
+      })}
+
       {graphics.tickerVisible && (
         <BroadcastGraphicFrame
           graphicId="live-ticker"
@@ -168,6 +205,8 @@ export function BroadcastGraphicsOverlay({
           minWidth={24}
           minHeight={26}
           onGeometry={changeGeometry}
+          onRemove={() => onSettings?.({ tickerVisible: false })}
+          removeLabel="Remove live ticker"
           title="Drag the live ticker to move it. Drag the corner handle to resize it. Click text to edit."
         >
           <div className="broadcast-ticker-row">

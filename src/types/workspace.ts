@@ -65,6 +65,7 @@ export interface WorkspaceState {
   libraryOpen: boolean;
   hiddenMenuOpen: boolean;
   graphicsOpen: boolean;
+  assetsOpen: boolean;
   coreView: CoreViewState;
   graphics: BroadcastGraphicsState;
 }
@@ -90,5 +91,6 @@ export type WorkspaceAction =
   | { type: 'ui/library'; open: boolean }
   | { type: 'ui/menu'; open: boolean }
   | { type: 'ui/graphics'; open: boolean }
+  | { type: 'ui/assets'; open: boolean }
   | { type: 'ui/show-collapsed'; value: boolean }
   | { type: 'workspace/reset' };

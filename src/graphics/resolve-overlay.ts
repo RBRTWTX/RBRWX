@@ -25,6 +25,8 @@ export const DEFAULT_BROADCAST_GRAPHICS_STATE: BroadcastGraphicsState = {
     'lower-third': { x: 4, y: 78, width: 92, height: 64 },
     'live-ticker': { x: 4, y: 87, width: 92, height: 38 },
   },
+  customAssets: [],
+  placedAssets: [],
   overrides: {},
 };
 
