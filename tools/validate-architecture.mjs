@@ -5,6 +5,9 @@ const read = (relative) => readFile(new URL(relative, root), 'utf8');
 
 for (const file of [
   'src/App.tsx',
+  'src/broadcast-engine/types.ts',
+  'src/broadcast-engine/scene-navigation.ts',
+  'src/hooks/useBroadcastPlayback.ts',
   'src/catalog/product-library.ts',
   'src/state/workspace-reducer.ts',
   'src/data/preload-registry.ts',
@@ -38,6 +41,11 @@ for (const token of [
   'selectedSceneId: scene.id',
   "case 'scene/move'",
   "case 'scene/remove'",
+  "case 'scene/playout'",
+  "case 'broadcast/play'",
+  "case 'broadcast/stop'",
+  "case 'broadcast/first'",
+  "case 'broadcast/advance'",
   "case 'graphics/settings'",
   "case 'graphics/profile'",
   "case 'graphics/reset-all'",
@@ -51,6 +59,7 @@ for (const token of [
   '<ShowPane',
   '<ProductLibraryDialog',
   'useScenePreloading(state.scenes, dispatch)',
+  'useBroadcastPlayback(state.scenes, state.selectedSceneId, state.broadcast, dispatch)',
   '<BroadcastStage',
   '<BroadcastGraphicsEditor',
   'graphics={state.graphics}',
@@ -66,8 +75,23 @@ if (app.includes('previewOverlayProfileId') || app.includes('previewOnStage')) {
 }
 
 const showPane = await read('src/components/ShowPane.tsx');
-if (!showPane.includes('scenes.map')) {
-  throw new Error('Show timeline must derive from the same single scene array as the left pane.');
+for (const token of [
+  'scenes.map',
+  'Broadcast Engine transport',
+  '▶ Play',
+  'title="First scene"',
+  'title="Previous scene"',
+  'title="Next scene"',
+  'title="Stop playout"',
+  'Selected scene playout settings',
+  '<option value="fly">Fly</option>',
+  '<option value="ease">Ease</option>',
+  '<option value="dissolve">Dissolve</option>',
+  '<option value="cut">Cut</option>',
+  '<option value="manual">Manual</option>',
+  '<option value="automatic">Automatic</option>',
+]) {
+  if (!showPane.includes(token)) throw new Error(`Broadcast Engine Show contract missing: ${token}`);
 }
 
 const library = await read('src/catalog/product-library.ts');
@@ -102,6 +126,15 @@ if (!preloadRegistry.includes('sharedDataCache.getOrLoad')) {
 const workspaceTypes = await read('src/types/workspace.ts');
 for (const token of [
   'overlayProfileId: string',
+  'transition: SceneTransitionSpec',
+  'holdSeconds: number',
+  'advance: SceneAdvanceMode',
+  'broadcast: BroadcastEngineState',
+  "type: 'scene/playout'",
+  "type: 'broadcast/play'",
+  "type: 'broadcast/stop'",
+  "type: 'broadcast/first'",
+  "type: 'broadcast/advance'",
   'graphics: BroadcastGraphicsState',
   "'graphics/profile'",
   "'graphics/reset-all'",
@@ -113,6 +146,34 @@ for (const forbidden of ['HeaderDefinition', 'LegendDefinition', 'header:', 'leg
   if (workspaceTypes.includes(forbidden)) {
     throw new Error(`Scene instances must not own broadcast graphics: ${forbidden}`);
   }
+}
+
+const broadcastEngineTypes = await read('src/broadcast-engine/types.ts');
+for (const token of [
+  "export type SceneTransitionKind = 'fly' | 'ease' | 'dissolve' | 'cut'",
+  "export type SceneAdvanceMode = 'manual' | 'automatic'",
+  "type: 'fly'",
+  'durationMs: 1800',
+  'holdSeconds: 10',
+  "advance: 'manual'",
+  'playing: false',
+]) {
+  if (!broadcastEngineTypes.includes(token)) throw new Error(`Broadcast Engine type/default contract missing: ${token}`);
+}
+
+const broadcastNavigation = await read('src/broadcast-engine/scene-navigation.ts');
+for (const token of ['firstSceneId', 'relativeSceneId', 'Math.max(0, Math.min(scenes.length - 1, proposed))']) {
+  if (!broadcastNavigation.includes(token)) throw new Error(`Broadcast Engine navigation contract missing: ${token}`);
+}
+
+const broadcastPlayback = await read('src/hooks/useBroadcastPlayback.ts');
+for (const token of [
+  "scene.advance !== 'automatic'",
+  'Math.max(1, Math.min(600, scene.holdSeconds)) * 1000',
+  "type: 'broadcast/advance', direction: 1",
+  "type: 'broadcast/stop'",
+]) {
+  if (!broadcastPlayback.includes(token)) throw new Error(`Broadcast Engine playback contract missing: ${token}`);
 }
 
 const overlayProfiles = await read('src/graphics/overlay-profiles.ts');
@@ -309,6 +370,10 @@ for (const token of [
   '.broadcast-assets-grid',
   '.broadcast-asset-frame',
   '.broadcast-graphic-remove-handle',
+  '.show-transport',
+  '.show-playout-settings',
+  '.show-on-air',
+  '.show-timeline > button.on-air',
 ]) {
   if (!styles.includes(token)) throw new Error(`Broadcast television graphics style contract missing: ${token}`);
 }

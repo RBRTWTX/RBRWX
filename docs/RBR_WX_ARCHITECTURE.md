@@ -8,6 +8,25 @@ RBR WX is organized into five top-level systems.
 4. **Broadcast Engine** — the single Scene queue and Show/timeline, selection, ordering, transitions, playback, scene activation, and Present control.
 5. **Weather Data / Weather Products** — provider-backed weather modules that register products capable of being placed into the Scene queue.
 
+## Broadcast Engine contract
+
+The Broadcast Engine owns playout behavior for the one canonical Scene queue. The left Scene pane and bottom Show/timeline continue to derive from the same ordered `scenes` array; the engine does not create a second scene list.
+
+Each scene carries Broadcast Engine playout metadata only:
+
+- transition type: `fly`, `ease`, `dissolve`, or `cut`;
+- transition duration;
+- hold time;
+- advance mode: `manual` or `automatic`.
+
+The initial playout defaults preserve the prior NEX GEN behavior: Fly transition, 1800 ms transition duration, 10 second hold, and Manual advance.
+
+The bottom Show owns the operator transport for the single rundown: first, previous, play, next, and stop. While playout is active, the selected scene is the on-air scene. Automatic scenes advance after their hold time; manual scenes remain on-air until the operator advances them. Reaching the end of an automatic rundown stops playout rather than creating an implicit loop.
+
+Scene addition continues to trigger immediate preload through the existing shared preload/cache path. Inactive scenes may remain warm in cache, but Broadcast Engine must not create persistent hidden render loops.
+
+Visual scene-transition rendering is a separate renderer responsibility layered over the shared Broadcast Stage; Broadcast Engine playout state and scene metadata remain independent from Map Engine and Broadcast Graphics.
+
 ## Broadcast Graphics contract
 
 Broadcast Graphics is an independent module. Weather products do not own title-bar, color-key, lower-third, ticker, or other broadcast-graphic objects. A weather product declares only the scene/overlay metadata needed by Broadcast Graphics, including its `overlayProfileId`.

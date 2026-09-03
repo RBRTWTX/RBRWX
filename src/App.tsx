@@ -10,6 +10,7 @@ import { ShowPane } from './components/ShowPane';
 import { TopBar } from './components/TopBar';
 import { broadcastProfileIdForScene } from './graphics/resolve-overlay';
 import { useScenePreloading } from './hooks/useScenePreloading';
+import { useBroadcastPlayback } from './hooks/useBroadcastPlayback';
 import { exportStage } from './output/export-stage';
 import { publishOutput } from './output/output-sync';
 import { EMPTY_WORKSPACE, workspaceReducer } from './state/workspace-reducer';
@@ -24,6 +25,7 @@ export function App() {
   );
 
   useScenePreloading(state.scenes, dispatch);
+  useBroadcastPlayback(state.scenes, state.selectedSceneId, state.broadcast, dispatch);
 
   const activeBasemap = selectedScene?.basemap ?? state.coreView.basemap;
   const activeContext = selectedScene?.context ?? state.coreView.context;
@@ -97,8 +99,15 @@ export function App() {
         scenes={state.scenes}
         selectedSceneId={state.selectedSceneId}
         collapsed={state.showCollapsed}
+        playing={state.broadcast.playing}
         onToggleCollapsed={() => dispatch({ type: 'ui/show-collapsed', value: !state.showCollapsed })}
         onSelect={(sceneId) => dispatch({ type: 'scene/select', sceneId })}
+        onFirst={() => dispatch({ type: 'broadcast/first' })}
+        onPrevious={() => dispatch({ type: 'broadcast/advance', direction: -1 })}
+        onPlay={() => dispatch({ type: 'broadcast/play' })}
+        onNext={() => dispatch({ type: 'broadcast/advance', direction: 1 })}
+        onStop={() => dispatch({ type: 'broadcast/stop' })}
+        onPlayout={(sceneId, patch) => dispatch({ type: 'scene/playout', sceneId, patch })}
       />
 
       <BroadcastGraphicsEditor

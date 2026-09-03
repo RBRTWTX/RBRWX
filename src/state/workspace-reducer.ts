@@ -5,6 +5,11 @@ import type {
   WorkspaceState,
 } from '../types/workspace';
 import { createDefaultBroadcastGraphicsState } from '../graphics/resolve-overlay';
+import {
+  createDefaultBroadcastEngineState,
+  createDefaultScenePlayoutSettings,
+} from '../broadcast-engine/types';
+import { firstSceneId, relativeSceneId } from '../broadcast-engine/scene-navigation';
 import { texasHomeCamera } from '../map/home-camera';
 
 export const EMPTY_WORKSPACE: WorkspaceState = {
@@ -21,10 +26,12 @@ export const EMPTY_WORKSPACE: WorkspaceState = {
     context: { cities: true, roads: true, boundaries: true },
   },
   graphics: createDefaultBroadcastGraphicsState(),
+  broadcast: createDefaultBroadcastEngineState(),
 };
 
 function sceneFromDefinition(definition: ProductDefinition): SceneInstance {
   const now = new Date().toISOString();
+  const playout = createDefaultScenePlayoutSettings();
   return {
     id: `${definition.id}-${crypto.randomUUID()}`,
     definitionId: definition.id,
@@ -41,6 +48,9 @@ function sceneFromDefinition(definition: ProductDefinition): SceneInstance {
     camera: structuredClone(definition.defaultCamera),
     context: structuredClone(definition.defaultContext),
     overlayProfileId: definition.overlayProfileId,
+    transition: playout.transition,
+    holdSeconds: playout.holdSeconds,
+    advance: playout.advance,
   };
 }
 
@@ -67,7 +77,12 @@ export function workspaceReducer(state: WorkspaceState, action: WorkspaceAction)
       const selectedSceneId = state.selectedSceneId === action.sceneId
         ? (scenes[Math.min(index, Math.max(0, scenes.length - 1))]?.id ?? null)
         : state.selectedSceneId;
-      return { ...state, scenes, selectedSceneId };
+      return {
+        ...state,
+        scenes,
+        selectedSceneId,
+        broadcast: scenes.length ? state.broadcast : { ...state.broadcast, playing: false },
+      };
     }
     case 'scene/move': {
       const index = state.scenes.findIndex((scene) => scene.id === action.sceneId);
@@ -105,6 +120,33 @@ export function workspaceReducer(state: WorkspaceState, action: WorkspaceAction)
           context: { ...scene.context, [action.key]: action.value },
         } : scene),
       };
+    case 'scene/playout':
+      return {
+        ...state,
+        scenes: state.scenes.map((scene) => scene.id === action.sceneId
+          ? { ...scene, ...action.patch }
+          : scene),
+      };
+    case 'broadcast/play': {
+      if (!state.scenes.length) return state;
+      return {
+        ...state,
+        selectedSceneId: state.selectedSceneId ?? firstSceneId(state.scenes),
+        broadcast: { ...state.broadcast, playing: true },
+      };
+    }
+    case 'broadcast/stop':
+      return { ...state, broadcast: { ...state.broadcast, playing: false } };
+    case 'broadcast/first': {
+      const sceneId = firstSceneId(state.scenes);
+      return sceneId ? { ...state, selectedSceneId: sceneId } : state;
+    }
+    case 'broadcast/advance': {
+      const sceneId = relativeSceneId(state.scenes, state.selectedSceneId, action.direction);
+      return sceneId && sceneId !== state.selectedSceneId
+        ? { ...state, selectedSceneId: sceneId }
+        : state;
+    }
     case 'core/basemap':
       return { ...state, coreView: { ...state.coreView, basemap: action.basemap } };
     case 'core/context':

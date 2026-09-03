@@ -6,7 +6,7 @@ button, input { font: inherit; }
 .app-shell {
   display: grid;
   grid-template-columns: 270px 1fr;
-  grid-template-rows: 56px 1fr 160px;
+  grid-template-rows: 56px 1fr 204px;
   width: 100%;
   height: 100%;
   background: #0b1017;
@@ -491,21 +491,144 @@ button, input { font: inherit; }
 }
 
 .show-pane {
-  grid-column: 1 / -1; grid-row: 3;
-  background: #101720; border-top: 1px solid #293443; overflow: hidden;
+  grid-column: 1 / -1;
+  grid-row: 3;
+  background: #101720;
+  border-top: 1px solid #293443;
+  overflow: hidden;
 }
-.show-heading { height: 42px; padding: 0 12px; }
-.show-heading div { display: flex; gap: 10px; align-items: baseline; }
-.show-timeline { height: 118px; display: flex; gap: 8px; overflow-x: auto; padding: 8px 12px 12px; }
+.show-heading {
+  height: 42px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.show-heading-summary {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  min-width: 150px;
+}
+.show-heading > button {
+  margin-left: auto;
+}
+.show-on-air {
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #9d1734;
+  color: #fff;
+  font-size: 9px;
+  letter-spacing: .08em;
+}
+.show-transport {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.show-transport button {
+  min-width: 34px;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid #344354;
+  border-radius: 5px;
+  background: #202a37;
+  color: #eef3f8;
+  cursor: pointer;
+}
+.show-transport button.active {
+  border-color: #c94763;
+  background: #7f1830;
+}
+.show-transport button:disabled {
+  opacity: .35;
+  cursor: default;
+}
+.show-playout-settings {
+  height: 44px;
+  display: grid;
+  grid-template-columns: 145px minmax(240px, 1fr) 105px 145px;
+  gap: 9px;
+  align-items: center;
+  padding: 5px 12px;
+  border-top: 1px solid #1f2b39;
+  border-bottom: 1px solid #293443;
+  background: #121b25;
+}
+.show-playout-settings label {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 3px 7px;
+  align-items: center;
+  color: #8fa0b2;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.show-playout-settings select,
+.show-playout-settings input[type="number"] {
+  min-width: 0;
+  height: 27px;
+  border: 1px solid #344354;
+  border-radius: 4px;
+  background: #18222e;
+  color: #edf3f8;
+  padding: 3px 6px;
+}
+.show-duration-control {
+  grid-template-columns: auto minmax(100px, 1fr) 38px !important;
+}
+.show-duration-control input {
+  width: 100%;
+}
+.show-duration-control output {
+  color: #d8e4ee;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.show-number-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px;
+}
+.show-number-control em {
+  color: #8fa0b2;
+  font-style: normal;
+  text-transform: lowercase;
+}
+.show-timeline {
+  height: 118px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 8px 12px 12px;
+}
 .show-timeline > button {
-  flex: 0 0 190px; display: grid; grid-template-columns: auto 1fr; gap: 4px 8px; align-items: center; text-align: left;
-  background: #18222e; color: #edf3f8; border: 1px solid #2c3b4d; border-radius: 6px; padding: 9px; cursor: pointer;
+  flex: 0 0 190px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 8px;
+  align-items: center;
+  text-align: left;
+  background: #18222e;
+  color: #edf3f8;
+  border: 1px solid #2c3b4d;
+  border-radius: 6px;
+  padding: 9px;
+  cursor: pointer;
 }
 .show-timeline > button.active { outline: 2px solid #6da8d6; }
+.show-timeline > button.on-air {
+  border-color: #d34c68;
+  box-shadow: inset 0 0 0 1px #d34c68;
+}
 .show-timeline > button span { color: #7f91a5; font-size: 10px; }
 .show-timeline > button small { grid-column: 2; color: #8fa0b2; }
 .show-empty { color: #8293a5; padding: 18px; }
 .show-pane.collapsed .show-heading { height: 42px; }
+.show-pane.collapsed .show-transport { display: none; }
 
 .dialog-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(2, 6, 10, .68); display: grid; place-items: center; }
 .library-dialog {

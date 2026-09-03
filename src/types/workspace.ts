@@ -2,6 +2,11 @@ import type {
   BroadcastGraphicsProfileOverride,
   BroadcastGraphicsState,
 } from '../graphics/types';
+import type {
+  BroadcastEngineState,
+  SceneAdvanceMode,
+  SceneTransitionSpec,
+} from '../broadcast-engine/types';
 
 export type BasemapId = 'standard' | 'dark' | 'satellite';
 export type SceneDataState = 'queued' | 'loading' | 'ready' | 'updating' | 'degraded' | 'error';
@@ -50,6 +55,9 @@ export interface SceneInstance {
   camera: CameraState;
   context: MapContextState;
   overlayProfileId: string;
+  transition: SceneTransitionSpec;
+  holdSeconds: number;
+  advance: SceneAdvanceMode;
 }
 
 export interface CoreViewState {
@@ -68,6 +76,7 @@ export interface WorkspaceState {
   assetsOpen: boolean;
   coreView: CoreViewState;
   graphics: BroadcastGraphicsState;
+  broadcast: BroadcastEngineState;
 }
 
 export type BroadcastGraphicsSettingsPatch = Partial<Omit<BroadcastGraphicsState, 'overrides'>>;
@@ -81,6 +90,15 @@ export type WorkspaceAction =
   | { type: 'scene/camera'; sceneId: string; camera: CameraState }
   | { type: 'scene/basemap'; sceneId: string; basemap: BasemapId }
   | { type: 'scene/context'; sceneId: string; key: keyof MapContextState; value: boolean }
+  | {
+      type: 'scene/playout';
+      sceneId: string;
+      patch: Partial<Pick<SceneInstance, 'transition' | 'holdSeconds' | 'advance'>>;
+    }
+  | { type: 'broadcast/play' }
+  | { type: 'broadcast/stop' }
+  | { type: 'broadcast/first' }
+  | { type: 'broadcast/advance'; direction: -1 | 1 }
   | { type: 'core/basemap'; basemap: BasemapId }
   | { type: 'core/context'; key: keyof MapContextState; value: boolean }
   | { type: 'map/reset-home' }
