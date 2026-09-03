@@ -34,6 +34,7 @@ Every Broadcast Graphic added to the Broadcast Graphics package must use the sha
 - position, width, and height are stored in Broadcast Graphics state;
 - sizing and X/Y axis sliders do not belong in the Graphics customization menu;
 - direct-manipulation handles are operator controls only and do not appear in Present/output or PNG export;
+- operator controls are hidden until that graphic is clicked, only the selected graphic exposes its applicable controls, and those controls auto-hide after a short operator interval;
 - the operator stage, Present/output window, and PNG export use the same stored Broadcast Graphics geometry and renderer.
 
 The current direct-manipulation contract applies to the title bar, lower third, and live ticker and is the required interaction model for future Broadcast Graphics.
@@ -48,6 +49,6 @@ The Assets toolbox follows the prior NEX GEN workflow: it is an independent oper
 
 The built-in weather artwork uses established open-source/public-domain sources documented in `docs/THIRD_PARTY_BROADCAST_ASSETS.md`. The previously accepted Alert / Warning / Watch / Advisory boxes are retained.
 
-Every draggable Broadcast Graphic uses the shared direct-manipulation frame. Every such operator-stage frame also exposes an operator-only `×` remove control. The `×` removes the placed overlay instance (or hides the corresponding built-in bar) and never appears in Present/output or PNG export. Removing an uploaded-image instance does not delete that uploaded image from the Assets library.
+Every draggable Broadcast Graphic uses the shared direct-manipulation frame. Removable overlays expose an operator-only `×` only while that overlay is selected. The title bar and live ticker never expose an `×`; their visibility remains controlled from the Graphics menu, and clicking either one temporarily reveals only its resize handle. Removing an uploaded-image instance does not delete that uploaded image from the Assets library.
 
 Uploaded images and built-in assets are placed as independent instances with their own geometry, so the same library asset can be placed more than once without coupling the instances.

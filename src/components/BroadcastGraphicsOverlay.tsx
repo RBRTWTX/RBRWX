@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import type { BroadcastGraphicsSettingsPatch } from '../types/workspace';
 import type {
@@ -35,6 +36,23 @@ export function BroadcastGraphicsOverlay({
   onProfile,
   onSettings,
 }: BroadcastGraphicsOverlayProps) {
+  const [selectedGraphicId, setSelectedGraphicId] = useState<string | null>(null);
+  const selectionTimerRef = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (selectionTimerRef.current !== null) window.clearTimeout(selectionTimerRef.current);
+  }, []);
+
+  function selectGraphic(graphicId: string): void {
+    if (!interactive) return;
+    setSelectedGraphicId(graphicId);
+    if (selectionTimerRef.current !== null) window.clearTimeout(selectionTimerRef.current);
+    selectionTimerRef.current = window.setTimeout(() => {
+      setSelectedGraphicId(null);
+      selectionTimerRef.current = null;
+    }, 3000);
+  }
+
   const resolved = resolveBroadcastGraphics(profileId, graphics, metadata);
   const geometry = graphics.geometry ?? FALLBACK_GEOMETRY;
   const titleGeometry = geometry['title-bar'] ?? FALLBACK_GEOMETRY['title-bar'];
@@ -72,12 +90,12 @@ export function BroadcastGraphicsOverlay({
           className="broadcast-title-frame"
           geometry={titleGeometry}
           interactive={interactive}
+          selected={selectedGraphicId === 'title-bar'}
+          onSelect={selectGraphic}
           minWidth={40}
           minHeight={72}
           onGeometry={changeGeometry}
-          onRemove={() => onSettings?.({ titleBarVisible: false })}
-          removeLabel="Remove title bar"
-          title="Drag the title bar to move it. Drag the corner handle to resize it. Click text to edit."
+          title="Drag the title bar to move it. Click to reveal the resize handle. Click text to edit."
         >
           <header className={`broadcast-title-bar variant-${resolved.titleBarVariant}`}>
             <div className="broadcast-title-cap" aria-hidden="true">
@@ -143,6 +161,8 @@ export function BroadcastGraphicsOverlay({
           className="broadcast-lower-third-frame"
           geometry={lowerThirdGeometry}
           interactive={interactive}
+          selected={selectedGraphicId === 'lower-third'}
+          onSelect={selectGraphic}
           minWidth={24}
           minHeight={40}
           onGeometry={changeGeometry}
@@ -177,6 +197,8 @@ export function BroadcastGraphicsOverlay({
             className="broadcast-asset-frame"
             geometry={instance.geometry}
             interactive={interactive}
+            selected={selectedGraphicId === instance.id}
+            onSelect={selectGraphic}
             minWidth={4}
             minHeight={28}
             onGeometry={(_, nextGeometry) => onSettings?.({
@@ -202,12 +224,12 @@ export function BroadcastGraphicsOverlay({
           className="broadcast-ticker-frame"
           geometry={tickerGeometry}
           interactive={interactive}
+          selected={selectedGraphicId === 'live-ticker'}
+          onSelect={selectGraphic}
           minWidth={24}
           minHeight={26}
           onGeometry={changeGeometry}
-          onRemove={() => onSettings?.({ tickerVisible: false })}
-          removeLabel="Remove live ticker"
-          title="Drag the live ticker to move it. Drag the corner handle to resize it. Click text to edit."
+          title="Drag the live ticker to move it. Click to reveal the resize handle. Click text to edit."
         >
           <div className="broadcast-ticker-row">
             <div className="broadcast-ticker-window">

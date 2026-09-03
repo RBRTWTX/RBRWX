@@ -12,6 +12,8 @@ interface BroadcastGraphicFrameProps extends PropsWithChildren {
   interactive: boolean;
   minWidth?: number;
   minHeight?: number;
+  selected?: boolean;
+  onSelect?: (graphicId: string) => void;
   onGeometry?: (graphicId: string, geometry: BroadcastGraphicGeometry) => void;
   onRemove?: () => void;
   removeLabel?: string;
@@ -34,6 +36,8 @@ export function BroadcastGraphicFrame({
   interactive,
   minWidth = 18,
   minHeight = 26,
+  selected = false,
+  onSelect,
   onGeometry,
   onRemove,
   removeLabel,
@@ -48,7 +52,10 @@ export function BroadcastGraphicFrame({
   } as CSSProperties;
 
   function beginDrag(event: ReactPointerEvent<HTMLDivElement>): void {
-    if (!interactive || !onGeometry || event.button !== 0 || isEditableTarget(event.target)) return;
+    if (!interactive || event.button !== 0) return;
+
+    onSelect?.(graphicId);
+    if (!onGeometry || isEditableTarget(event.target)) return;
 
     const layer = event.currentTarget.parentElement;
     if (!layer) return;
@@ -67,6 +74,7 @@ export function BroadcastGraphicFrame({
     const move = (moveEvent: PointerEvent) => {
       const dx = (moveEvent.clientX - pointerX) / Math.max(rect.width, 1) * 100;
       const dy = (moveEvent.clientY - pointerY) / Math.max(rect.height, 1) * 100;
+      onSelect?.(graphicId);
       onGeometry(graphicId, {
         ...geometry,
         x: clamp(startX + dx, 0, maxX),
@@ -88,6 +96,7 @@ export function BroadcastGraphicFrame({
   function beginResize(event: ReactPointerEvent<HTMLButtonElement>): void {
     if (!interactive || !onGeometry || event.button !== 0) return;
 
+    onSelect?.(graphicId);
     const frame = event.currentTarget.parentElement;
     const layer = frame?.parentElement;
     if (!frame || !layer) return;
@@ -108,6 +117,7 @@ export function BroadcastGraphicFrame({
     const move = (moveEvent: PointerEvent) => {
       const widthDelta = (moveEvent.clientX - pointerX) / Math.max(rect.width, 1) * 100;
       const heightDelta = moveEvent.clientY - pointerY;
+      onSelect?.(graphicId);
       onGeometry(graphicId, {
         ...geometry,
         width: clamp(startWidth + widthDelta, minWidth, maxWidth),
@@ -135,7 +145,7 @@ export function BroadcastGraphicFrame({
       title={interactive ? title ?? 'Drag to move. Drag the corner handle to resize.' : undefined}
     >
       {children}
-      {interactive && onRemove && (
+      {interactive && selected && onRemove && (
         <button
           type="button"
           className="broadcast-graphic-remove-handle"
@@ -145,7 +155,7 @@ export function BroadcastGraphicFrame({
           onClick={(event) => { event.preventDefault(); event.stopPropagation(); onRemove(); }}
         >×</button>
       )}
-      {interactive && (
+      {interactive && selected && (
         <button
           type="button"
           className="broadcast-graphic-resize-handle"

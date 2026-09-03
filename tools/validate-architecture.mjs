@@ -187,6 +187,10 @@ for (const token of [
   'beginDrag',
   'beginResize',
   'broadcast-graphic-resize-handle',
+  'selected?: boolean',
+  'onSelect?: (graphicId: string) => void',
+  'interactive && selected && onRemove',
+  'interactive && selected && (',
   'onGeometry(graphicId',
   'data-broadcast-graphic-id',
 ]) {
@@ -210,11 +214,24 @@ for (const token of [
   'graphics.placedAssets.map',
   'broadcastAssetDefinition',
   '<BroadcastAssetArtwork',
-  'onRemove={() => onSettings?.({ titleBarVisible: false })}',
+  'selectedGraphicId',
+  'window.setTimeout',
+  '3000',
+  "selected={selectedGraphicId === 'title-bar'}",
+  "selected={selectedGraphicId === 'lower-third'}",
+  'selected={selectedGraphicId === instance.id}',
+  "selected={selectedGraphicId === 'live-ticker'}",
   'onRemove={() => onSettings?.({ lowerThirdVisible: false })}',
-  'onRemove={() => onSettings?.({ tickerVisible: false })}',
 ]) {
   if (!overlay.includes(token)) throw new Error(`Broadcast Graphics renderer missing: ${token}`);
+}
+for (const forbidden of [
+  'onRemove={() => onSettings?.({ titleBarVisible: false })}',
+  'removeLabel="Remove title bar"',
+  'onRemove={() => onSettings?.({ tickerVisible: false })}',
+  'removeLabel="Remove live ticker"',
+]) {
+  if (overlay.includes(forbidden)) throw new Error(`Title bar/live ticker must not expose an operator remove control: ${forbidden}`);
 }
 
 const broadcastStage = await read('src/components/BroadcastStage.tsx');
@@ -322,7 +339,7 @@ for (const token of ["@iconify/icons-wi/lightning", "@iconify/icons-wi/hurricane
 }
 
 const graphicFrame = await read('src/components/BroadcastGraphicFrame.tsx');
-for (const token of ['onRemove?: () => void', 'broadcast-graphic-remove-handle', '>×</button>']) {
+for (const token of ['onRemove?: () => void', 'selected?: boolean', 'onSelect?: (graphicId: string) => void', 'interactive && selected && onRemove', 'broadcast-graphic-remove-handle', '>×</button>']) {
   if (!graphicFrame.includes(token)) throw new Error('Broadcast Graphic remove-control contract missing: ' + token);
 }
 
